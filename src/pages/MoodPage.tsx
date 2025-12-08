@@ -161,7 +161,20 @@ const MoodPage = () => {
 
         {/* Check-in card */}
         <div className="card-elevated p-6 md:p-8 animate-slide-up">
-          {user && hasCheckedInToday ? (
+          {!user ? (
+            <div className="text-center py-6">
+              <Heart className="w-12 h-12 text-pink-500 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Please log in to check in
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Sign in to track your moods and see your check-in history.
+              </p>
+              <Button asChild>
+                <a href="/login">Log In</a>
+              </Button>
+            </div>
+          ) : hasCheckedInToday ? (
             <div className="text-center py-6">
               <Check className="w-12 h-12 text-primary mx-auto mb-3" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
