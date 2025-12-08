@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const useTextToSpeech = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -12,15 +14,25 @@ export const useTextToSpeech = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text },
+      // Use fetch directly for better handling of large responses
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/text-to-speech`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ text }),
       });
 
-      if (error) {
-        console.error('Text-to-speech error:', error);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Text-to-speech error:', errorData);
         setIsLoading(false);
         return;
       }
+
+      const data = await response.json();
 
       if (data?.audioContent) {
         // Stop any currently playing audio
