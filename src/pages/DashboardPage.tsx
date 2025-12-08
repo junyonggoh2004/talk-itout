@@ -1,50 +1,110 @@
-import { useState } from "react";
-import { Shield, AlertTriangle, Clock, Users, TrendingUp, Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Shield, AlertTriangle, Clock } from "lucide-react";
 import Header from "@/components/Header";
-import AlertCard, { Alert } from "@/components/AlertCard";
+import AlertCard from "@/components/AlertCard";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
-// Mock data for demonstration
-const mockAlerts: Alert[] = [
-  {
-    id: "1",
-    severity: "critical",
-    riskType: "Suicide Risk",
-    channel: "chat",
-    message: "I want to kill myself",
-    userAlias: "anon_17629615200...",
-    timestamp: "Nov 12, 2025, 3:32 PM",
-  },
-  {
-    id: "2",
-    severity: "critical",
-    riskType: "Suicide Risk",
-    channel: "chat",
-    message: "I want to kill myself",
-    userAlias: "anon_17629317190...",
-    timestamp: "Nov 12, 2025, 7:16 AM",
-  },
-  {
-    id: "3",
-    severity: "high",
-    riskType: "Self-Harm",
-    channel: "mood",
-    message: "I feel like hurting myself, nothing seems to help anymore",
-    userAlias: "anon_17628991827...",
-    timestamp: "Nov 11, 2025, 11:45 PM",
-  },
-];
+interface RiskFlag {
+  id: string;
+  user_id: string;
+  severity: string;
+  risk_type: string;
+  channel: string;
+  message: string;
+  status: string;
+  created_at: string;
+}
 
-const mockStats = {
-  totalStudents: 5,
-  activeWeek: 4,
-  avgMood: 3.8,
-  openFlags: 3,
+interface DashboardStats {
+  totalStudents: number;
+  activeWeek: number;
+  avgMood: number;
+  openFlags: number;
+}
+
+const moodToNumber: Record<string, number> = {
+  very_bad: 1,
+  bad: 2,
+  okay: 3,
+  good: 4,
+  great: 5,
 };
 
 const DashboardPage = () => {
-  const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
+  const [alerts, setAlerts] = useState<RiskFlag[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalStudents: 0,
+    activeWeek: 0,
+    avgMood: 0,
+    openFlags: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+
+    // Fetch open risk flags
+    const { data: flagsData, error: flagsError } = await supabase
+      .from("risk_flags")
+      .select("*")
+      .eq("status", "open")
+      .order("created_at", { ascending: false });
+
+    if (flagsError) {
+      console.error("Error fetching risk flags:", flagsError);
+    } else {
+      setAlerts(flagsData || []);
+    }
+
+    // Fetch stats
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Get total unique students (users with student role who have check-ins)
+    const { data: studentsData } = await supabase
+      .from("mood_checkins")
+      .select("user_id");
+
+    const uniqueStudents = new Set(studentsData?.map((c) => c.user_id) || []);
+
+    // Get active students in last 7 days
+    const { data: activeData } = await supabase
+      .from("mood_checkins")
+      .select("user_id")
+      .gte("created_at", sevenDaysAgo.toISOString());
+
+    const activeStudents = new Set(activeData?.map((c) => c.user_id) || []);
+
+    // Get average mood from all check-ins
+    const { data: moodData } = await supabase
+      .from("mood_checkins")
+      .select("mood");
+
+    let avgMood = 0;
+    if (moodData && moodData.length > 0) {
+      const totalMood = moodData.reduce(
+        (sum, c) => sum + (moodToNumber[c.mood] || 3),
+        0
+      );
+      avgMood = totalMood / moodData.length;
+    }
+
+    setStats({
+      totalStudents: uniqueStudents.size,
+      activeWeek: activeStudents.size,
+      avgMood: avgMood,
+      openFlags: flagsData?.length || 0,
+    });
+
+    setIsLoading(false);
+  };
 
   const criticalCount = alerts.filter((a) => a.severity === "critical").length;
 
@@ -55,10 +115,20 @@ const DashboardPage = () => {
     });
   };
 
+  const formatAlertForCard = (flag: RiskFlag) => ({
+    id: flag.id,
+    severity: flag.severity as "low" | "medium" | "high" | "critical",
+    riskType: flag.risk_type,
+    channel: flag.channel,
+    message: flag.message,
+    userAlias: `anon_${flag.user_id.substring(0, 12)}...`,
+    timestamp: format(new Date(flag.created_at), "MMM d, yyyy, h:mm a"),
+  });
+
   return (
     <div className="min-h-screen bg-secondary/50">
       <Header />
-      
+
       <main className="container max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6 animate-fade-in">
@@ -73,35 +143,45 @@ const DashboardPage = () => {
               Monitor and respond to high-risk users
             </p>
           </div>
-          
+
           {/* Pending alerts badge */}
           <div className="card-elevated p-4 flex items-center gap-3 shrink-0">
             <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-destructive" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{alerts.length}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {isLoading ? "..." : alerts.length}
+              </p>
               <p className="text-sm text-muted-foreground">Pending Alerts</p>
             </div>
           </div>
         </div>
 
-        {/* Stats cards - matching reference design */}
+        {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-slide-up">
           <div className="card-elevated p-5">
-            <p className="text-3xl font-bold text-foreground mb-1">{mockStats.totalStudents}</p>
+            <p className="text-3xl font-bold text-foreground mb-1">
+              {isLoading ? "..." : stats.totalStudents}
+            </p>
             <p className="text-sm text-muted-foreground">Total Students</p>
           </div>
           <div className="card-elevated p-5">
-            <p className="text-3xl font-bold text-foreground mb-1">{mockStats.activeWeek}</p>
+            <p className="text-3xl font-bold text-foreground mb-1">
+              {isLoading ? "..." : stats.activeWeek}
+            </p>
             <p className="text-sm text-muted-foreground">Active (7 days)</p>
           </div>
           <div className="card-elevated p-5">
-            <p className="text-3xl font-bold text-foreground mb-1">{mockStats.avgMood.toFixed(1)}</p>
+            <p className="text-3xl font-bold text-foreground mb-1">
+              {isLoading ? "..." : stats.avgMood > 0 ? stats.avgMood.toFixed(1) : "-"}
+            </p>
             <p className="text-sm text-muted-foreground">Avg Mood</p>
           </div>
           <div className="card-elevated p-5">
-            <p className="text-3xl font-bold text-destructive mb-1">{mockStats.openFlags}</p>
+            <p className="text-3xl font-bold text-destructive mb-1">
+              {isLoading ? "..." : stats.openFlags}
+            </p>
             <p className="text-sm text-muted-foreground">Open Risk Flags</p>
           </div>
         </div>
@@ -112,7 +192,8 @@ const DashboardPage = () => {
             <AlertTriangle className="w-6 h-6 text-destructive-foreground shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-destructive-foreground">
-                {criticalCount} user{criticalCount > 1 ? "s" : ""} require{criticalCount === 1 ? "s" : ""} immediate attention
+                {criticalCount} user{criticalCount > 1 ? "s" : ""} require
+                {criticalCount === 1 ? "s" : ""} immediate attention
               </p>
               <p className="text-sm text-destructive-foreground/80">
                 Please review and acknowledge these alerts as soon as possible.
@@ -126,14 +207,24 @@ const DashboardPage = () => {
           <div className="flex items-center gap-2 mb-6">
             <Clock className="w-5 h-5 text-muted-foreground" />
             <h2 className="text-xl font-display font-bold text-foreground">
-              {alerts.length > 0 ? `Pending Alerts (${alerts.length})` : "Risk Flags - Requires Attention"}
+              {alerts.length > 0
+                ? `Pending Alerts (${alerts.length})`
+                : "Risk Flags - Requires Attention"}
             </h2>
           </div>
 
-          {alerts.length > 0 ? (
+          {isLoading ? (
+            <div className="py-12 text-center">
+              <p className="text-muted-foreground animate-pulse">Loading...</p>
+            </div>
+          ) : alerts.length > 0 ? (
             <div className="space-y-4">
               {alerts.map((alert) => (
-                <AlertCard key={alert.id} alert={alert} onReview={handleReview} />
+                <AlertCard
+                  key={alert.id}
+                  alert={formatAlertForCard(alert)}
+                  onReview={handleReview}
+                />
               ))}
             </div>
           ) : (

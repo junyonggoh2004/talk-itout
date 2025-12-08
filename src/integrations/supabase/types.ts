@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      mood_checkins: {
+        Row: {
+          created_at: string
+          id: string
+          mood: string
+          thoughts: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mood: string
+          thoughts?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mood?: string
+          thoughts?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -31,6 +55,53 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      risk_flags: {
+        Row: {
+          channel: string
+          checkin_id: string | null
+          created_at: string
+          id: string
+          message: string
+          resolved_at: string | null
+          risk_type: string
+          severity: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          checkin_id?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          resolved_at?: string | null
+          risk_type: string
+          severity: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          checkin_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          risk_type?: string
+          severity?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_flags_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "mood_checkins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
