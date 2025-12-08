@@ -173,23 +173,11 @@ const DashboardPage = () => {
                 Counsellor Dashboard
               </h1>
             </div>
-            <p className="text-muted-foreground">
-              Monitor and respond to high-risk users
-            </p>
+            
           </div>
 
           {/* Pending alerts badge */}
-          <div className="card-elevated p-4 flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-destructive" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">
-                {isLoading ? "..." : alerts.length}
-              </p>
-              <p className="text-sm text-muted-foreground">Pending Alerts</p>
-            </div>
-          </div>
+          
         </div>
 
         {/* Stats cards */}
