@@ -57,7 +57,7 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header isLoggedIn userRole="counselor" />
+      <Header />
       
       <main className="container max-w-6xl mx-auto px-4 py-8">
         {/* Header */}

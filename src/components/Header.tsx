@@ -1,15 +1,12 @@
 import { Heart, MessageCircle, Timer, LayoutDashboard, User, LogOut } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface HeaderProps {
-  isLoggedIn?: boolean;
-  userRole?: "student" | "counselor";
-  onLogout?: () => void;
-}
-
-const Header = ({ isLoggedIn = false, userRole = "student", onLogout }: HeaderProps) => {
+const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, userRole, signOut } = useAuth();
 
   const studentNavItems = [
     { to: "/mood", label: "Mood", icon: Heart },
@@ -17,11 +14,16 @@ const Header = ({ isLoggedIn = false, userRole = "student", onLogout }: HeaderPr
     { to: "/activities", label: "Activities", icon: Timer },
   ];
 
-  const counselorNavItems = [
+  const counsellorNavItems = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   ];
 
-  const navItems = userRole === "counselor" ? counselorNavItems : studentNavItems;
+  const navItems = userRole === "counsellor" ? counsellorNavItems : studentNavItems;
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className="bg-primary py-3 px-4 md:px-6 shadow-soft">
@@ -63,9 +65,9 @@ const Header = ({ isLoggedIn = false, userRole = "student", onLogout }: HeaderPr
 
         {/* Auth buttons */}
         <div className="flex items-center gap-2">
-          {isLoggedIn ? (
+          {user ? (
             <button
-              onClick={onLogout}
+              onClick={handleLogout}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-primary-foreground/90 hover:bg-primary-foreground/10 transition-all"
             >
               <LogOut className="w-4 h-4" />

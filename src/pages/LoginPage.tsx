@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Mail, Lock, ArrowRight, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,24 +14,73 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, signUp, user, userRole, isLoading: authLoading } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (userRole === "counsellor") {
+        navigate("/dashboard");
+      } else {
+        navigate("/mood");
+      }
+    }
+  }, [user, userRole, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent, mode: "login" | "signup") => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate auth
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast({
-      title: mode === "login" ? "Welcome back!" : "Account created!",
-      description: mode === "login" 
-        ? "You're now logged in." 
-        : "Your account has been created successfully.",
-    });
+    try {
+      if (mode === "login") {
+        const { error } = await signIn(email, password);
+        if (error) {
+          toast({
+            title: "Login failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        toast({
+          title: "Welcome back!",
+          description: "You're now logged in.",
+        });
+      } else {
+        const { error } = await signUp(email, password);
+        if (error) {
+          toast({
+            title: "Sign up failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        toast({
+          title: "Account created!",
+          description: "Your account has been created successfully.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
 
     setIsLoading(false);
-    navigate("/mood");
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
