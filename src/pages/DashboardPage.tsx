@@ -139,11 +139,28 @@ const DashboardPage = () => {
 
   const criticalCount = alerts.filter((a) => a.severity === "critical").length;
 
-  const handleReview = (alertId: string) => {
-    toast({
-      title: "Opening review...",
-      description: "Alert details would open in a modal or new page.",
-    });
+  const handleStatusChange = async (alertId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from("risk_flags")
+      .update({
+        status: newStatus,
+        resolved_at: newStatus === "resolved" ? new Date().toISOString() : null,
+      })
+      .eq("id", alertId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update alert status.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Status Updated",
+        description: `Alert marked as ${newStatus === "resolved" ? "resolved" : "pending"}.`,
+      });
+      fetchDashboardData();
+    }
   };
 
   const moodLabels: Record<string, string> = {
@@ -163,6 +180,8 @@ const DashboardPage = () => {
     userAlias: flag.display_name || `Student ${flag.user_id.substring(0, 8)}`,
     mood: flag.mood ? moodLabels[flag.mood] || flag.mood : undefined,
     timestamp: format(new Date(flag.created_at), "MMM d, yyyy, h:mm a"),
+    status: flag.status,
+    userId: flag.user_id,
   });
 
   return (
@@ -263,7 +282,7 @@ const DashboardPage = () => {
                 <AlertCard
                   key={alert.id}
                   alert={formatAlertForCard(alert)}
-                  onReview={handleReview}
+                  onStatusChange={handleStatusChange}
                 />
               ))}
             </div>
