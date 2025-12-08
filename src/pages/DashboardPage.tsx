@@ -15,6 +15,9 @@ interface RiskFlag {
   message: string;
   status: string;
   created_at: string;
+  checkin_id: string | null;
+  mood?: string;
+  display_name?: string;
 }
 
 interface DashboardStats {
@@ -60,7 +63,35 @@ const DashboardPage = () => {
     if (flagsError) {
       console.error("Error fetching risk flags:", flagsError);
     } else {
-      setAlerts(flagsData || []);
+      // Enrich flags with mood and display name
+      const enrichedFlags = await Promise.all(
+        (flagsData || []).map(async (flag) => {
+          let mood = "";
+          let displayName = "";
+
+          // Fetch mood from checkin if available
+          if (flag.checkin_id) {
+            const { data: checkinData } = await supabase
+              .from("mood_checkins")
+              .select("mood")
+              .eq("id", flag.checkin_id)
+              .maybeSingle();
+            mood = checkinData?.mood || "";
+          }
+
+          // Fetch display name from profiles
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("id", flag.user_id)
+            .maybeSingle();
+          displayName = profileData?.display_name || "";
+
+          return { ...flag, mood, display_name: displayName };
+        })
+      );
+
+      setAlerts(enrichedFlags);
     }
 
     // Fetch stats
@@ -115,13 +146,22 @@ const DashboardPage = () => {
     });
   };
 
+  const moodLabels: Record<string, string> = {
+    very_bad: "Very Bad",
+    bad: "Bad",
+    okay: "Okay",
+    good: "Good",
+    great: "Great",
+  };
+
   const formatAlertForCard = (flag: RiskFlag) => ({
     id: flag.id,
     severity: flag.severity as "low" | "medium" | "high" | "critical",
     riskType: flag.risk_type,
     channel: flag.channel,
     message: flag.message,
-    userAlias: `anon_${flag.user_id.substring(0, 12)}...`,
+    userAlias: flag.display_name || `Student ${flag.user_id.substring(0, 8)}`,
+    mood: flag.mood ? moodLabels[flag.mood] || flag.mood : undefined,
     timestamp: format(new Date(flag.created_at), "MMM d, yyyy, h:mm a"),
   });
 
