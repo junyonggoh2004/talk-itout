@@ -5,12 +5,15 @@ import MoodSelector, { Mood } from "@/components/MoodSelector";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const MoodPage = () => {
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [thoughts, setThoughts] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleSubmit = async () => {
     if (!selectedMood) {
@@ -23,15 +26,32 @@ const MoodPage = () => {
     }
 
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    
+
+    // Only persist to database if user is logged in
+    if (user) {
+      const { error } = await supabase.from("mood_checkins").insert({
+        user_id: user.id,
+        mood: selectedMood,
+        thoughts: thoughts.trim() || null,
+      });
+
+      if (error) {
+        console.error("Error saving mood check-in:", error);
+        toast({
+          title: "Error saving check-in",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     toast({
       title: "Thank you for sharing",
       description: "Remember, it's okay to feel however you're feeling right now.",
     });
-    
+
     // Reset form
     setSelectedMood(null);
     setThoughts("");
@@ -41,7 +61,7 @@ const MoodPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container max-w-3xl mx-auto px-4 py-8 md:py-12">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12 animate-fade-in">

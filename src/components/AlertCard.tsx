@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 interface Alert {
   id: string;
-  severity: "critical" | "high" | "medium";
+  severity: "critical" | "high" | "medium" | "low";
   riskType: string;
-  channel: "chat" | "mood";
+  channel: string;
   message: string;
   userAlias: string;
   timestamp: string;
@@ -19,10 +19,11 @@ interface AlertCardProps {
 }
 
 const AlertCard = ({ alert, onReview }: AlertCardProps) => {
-  const severityStyles = {
+  const severityStyles: Record<string, string> = {
     critical: "bg-destructive text-destructive-foreground",
     high: "bg-orange-500 text-white",
     medium: "bg-yellow-500 text-white",
+    low: "bg-blue-500 text-white",
   };
 
   const channelIcon = alert.channel === "chat" ? MessageCircle : Heart;
@@ -34,7 +35,8 @@ const AlertCard = ({ alert, onReview }: AlertCardProps) => {
         "bg-card rounded-xl border-l-4 p-4 shadow-card animate-fade-in",
         alert.severity === "critical" && "border-l-destructive",
         alert.severity === "high" && "border-l-orange-500",
-        alert.severity === "medium" && "border-l-yellow-500"
+        alert.severity === "medium" && "border-l-yellow-500",
+        alert.severity === "low" && "border-l-blue-500"
       )}
     >
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
