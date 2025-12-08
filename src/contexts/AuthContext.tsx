@@ -22,19 +22,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRole = async (userId: string): Promise<UserRole> => {
     const { data, error } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .maybeSingle();
+      .eq("user_id", userId);
 
     if (error) {
       console.error("Error fetching user role:", error);
       return null;
     }
 
-    return data?.role as UserRole;
+    // Prioritize counsellor role if user has multiple roles
+    const roles = data?.map((r) => r.role) || [];
+    if (roles.includes("counsellor")) {
+      return "counsellor";
+    }
+    if (roles.includes("student")) {
+      return "student";
+    }
+    return null;
   };
 
   useEffect(() => {

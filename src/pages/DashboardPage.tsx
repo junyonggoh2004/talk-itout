@@ -56,14 +56,14 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-secondary/50">
       <Header />
       
       <main className="container max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8 animate-fade-in">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6 animate-fade-in">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-3 mb-1">
               <Shield className="w-8 h-8 text-destructive" />
               <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
                 Counsellor Dashboard
@@ -86,21 +86,24 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Stats cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 animate-slide-up">
-          {[
-            { label: "Total Students", value: mockStats.totalStudents, icon: Users },
-            { label: "Active (7 days)", value: mockStats.activeWeek, icon: TrendingUp },
-            { label: "Avg Mood", value: mockStats.avgMood.toFixed(1), icon: Heart },
-            { label: "Open Risk Flags", value: mockStats.openFlags, icon: AlertTriangle, highlight: true },
-          ].map((stat) => (
-            <div key={stat.label} className="card-elevated p-4">
-              <p className={`text-2xl font-bold ${stat.highlight ? "text-destructive" : "text-foreground"}`}>
-                {stat.value}
-              </p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </div>
-          ))}
+        {/* Stats cards - matching reference design */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-slide-up">
+          <div className="card-elevated p-5">
+            <p className="text-3xl font-bold text-foreground mb-1">{mockStats.totalStudents}</p>
+            <p className="text-sm text-muted-foreground">Total Students</p>
+          </div>
+          <div className="card-elevated p-5">
+            <p className="text-3xl font-bold text-foreground mb-1">{mockStats.activeWeek}</p>
+            <p className="text-sm text-muted-foreground">Active (7 days)</p>
+          </div>
+          <div className="card-elevated p-5">
+            <p className="text-3xl font-bold text-foreground mb-1">{mockStats.avgMood.toFixed(1)}</p>
+            <p className="text-sm text-muted-foreground">Avg Mood</p>
+          </div>
+          <div className="card-elevated p-5">
+            <p className="text-3xl font-bold text-destructive mb-1">{mockStats.openFlags}</p>
+            <p className="text-sm text-muted-foreground">Open Risk Flags</p>
+          </div>
         </div>
 
         {/* Critical alert banner */}
@@ -118,12 +121,12 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {/* Alerts section */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
+        {/* Risk Flags section */}
+        <section className="card-elevated p-6">
+          <div className="flex items-center gap-2 mb-6">
             <Clock className="w-5 h-5 text-muted-foreground" />
-            <h2 className="text-lg font-display font-bold text-foreground">
-              Pending Alerts ({alerts.length})
+            <h2 className="text-xl font-display font-bold text-foreground">
+              {alerts.length > 0 ? `Pending Alerts (${alerts.length})` : "Risk Flags - Requires Attention"}
             </h2>
           </div>
 
@@ -134,7 +137,7 @@ const DashboardPage = () => {
               ))}
             </div>
           ) : (
-            <div className="card-elevated p-8 text-center">
+            <div className="py-12 text-center">
               <p className="text-muted-foreground">No open risk flags</p>
             </div>
           )}

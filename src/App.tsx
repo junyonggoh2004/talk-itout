@@ -24,9 +24,30 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/mood" element={<MoodPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/activities" element={<ActivitiesPage />} />
+            <Route
+              path="/mood"
+              element={
+                <ProtectedRoute requiredRole="student" allowAnonymous>
+                  <MoodPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute requiredRole="student" allowAnonymous>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/activities"
+              element={
+                <ProtectedRoute requiredRole="student" allowAnonymous>
+                  <ActivitiesPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={
