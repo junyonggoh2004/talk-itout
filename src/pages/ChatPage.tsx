@@ -1,11 +1,12 @@
-import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Send, Mic, Trash2, Volume2, VolumeX, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { MessageCircle, Send, Mic, MicOff, Trash2, Volume2, VolumeX, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import ChatBubble from "@/components/ChatBubble";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useVoiceRecording } from "@/hooks/useVoiceRecording";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -41,6 +42,20 @@ const ChatPage = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { speak, stop, isPlaying, isLoading: isSpeaking } = useTextToSpeech();
+
+  const handleVoiceTranscript = useCallback((text: string) => {
+    setInput(prev => prev ? `${prev} ${text}` : text);
+    toast.success("Voice captured!");
+  }, []);
+
+  const handleVoiceError = useCallback((error: string) => {
+    toast.error(error);
+  }, []);
+
+  const { isRecording, isSupported: isVoiceSupported, toggleRecording } = useVoiceRecording({
+    onTranscript: handleVoiceTranscript,
+    onError: handleVoiceError,
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -262,12 +277,21 @@ const ChatPage = () => {
           <div className="p-4 border-t border-border/50 bg-card">
             <div className="flex items-end gap-2">
               <Button
-                variant="secondary"
+                variant={isRecording ? "destructive" : "secondary"}
                 size="icon"
-                className="shrink-0 rounded-full"
-                title="Voice input (coming soon)"
+                className={cn(
+                  "shrink-0 rounded-full transition-all",
+                  isRecording && "animate-pulse"
+                )}
+                onClick={toggleRecording}
+                disabled={!isVoiceSupported}
+                title={isRecording ? "Stop recording" : "Start voice input"}
               >
-                <Mic className="w-4 h-4" />
+                {isRecording ? (
+                  <MicOff className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
               </Button>
               
               <div className="flex-1 relative">
