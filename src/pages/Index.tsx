@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Timer, Shield, ArrowRight } from "lucide-react";
+import { Heart, MessageCircle, Shield, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,6 @@ const features = [{
   description: "Chat with our friendly AI companion about anything on your mind.",
   link: "/chat",
   color: "text-primary"
-}, {
-  icon: Timer,
-  title: "Focus & Activities",
-  description: "Use our Pomodoro timer and calming exercises to stay centered.",
-  link: "/activities",
-  color: "text-accent"
 }];
 const Index = () => {
   return <div className="min-h-screen bg-background">

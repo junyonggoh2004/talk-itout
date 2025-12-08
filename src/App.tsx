@@ -8,7 +8,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import MoodPage from "./pages/MoodPage";
 import ChatPage from "./pages/ChatPage";
-import ActivitiesPage from "./pages/ActivitiesPage";
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
@@ -37,14 +36,6 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRole="student" allowAnonymous>
                   <ChatPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/activities"
-              element={
-                <ProtectedRoute requiredRole="student" allowAnonymous>
-                  <ActivitiesPage />
                 </ProtectedRoute>
               }
             />
