@@ -42,8 +42,8 @@ const Header = () => {
   return <header className="bg-primary py-3 px-4 md:px-6 shadow-soft">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-card rounded-lg flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-card rounded-lg flex items-center justify-center shadow-sm">
             <Heart className="w-6 h-6 text-destructive fill-destructive" />
           </div>
           <div className="hidden sm:block">
@@ -52,7 +52,7 @@ const Header = () => {
             </h1>
             <p className="text-primary-foreground/70 text-xs">One Talk Away</p>
           </div>
-        </Link>
+        </div>
 
         {/* Navigation */}
         <nav className="flex items-center gap-1 md:gap-2">
