@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -52,25 +54,34 @@ const ChatPage = () => {
     return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  const simulateAIResponse = (userMessage: string) => {
+  const getAIResponse = async (allMessages: Message[]) => {
     setIsTyping(true);
     
-    // Simulate AI thinking
-    setTimeout(() => {
-      const responses = [
-        "I hear you. It sounds like you're going through a lot right now. Would you like to tell me more about what's on your mind?",
-        "Thank you for sharing that with me. Your feelings are valid. What do you think would help you feel a bit better right now?",
-        "I'm here for you. Sometimes talking things out can help us see things more clearly. What's been weighing on you the most?",
-        "That makes sense. It's completely normal to feel that way. Is there anything specific I can help you with today?",
-      ];
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    try {
+      // Convert messages to the format expected by the API
+      const chatHistory = allMessages.map(msg => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: msg.text
+      }));
+
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: { messages: chatHistory }
+      });
+
+      if (error) {
+        console.error("Chat error:", error);
+        toast.error("Failed to get response. Please try again.");
+        setIsTyping(false);
+        return;
+      }
+
+      const responseText = data?.message || "I'm here to listen. Could you tell me more?";
       
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
-          text: randomResponse,
+          text: responseText,
           sender: "assistant",
           timestamp: formatTime(),
           isNew: true,
@@ -80,9 +91,13 @@ const ChatPage = () => {
 
       // Speak the response if voice is enabled
       if (voiceEnabled) {
-        speak(randomResponse);
+        speak(responseText);
       }
-    }, 1500);
+    } catch (err) {
+      console.error("Chat error:", err);
+      toast.error("Something went wrong. Please try again.");
+      setIsTyping(false);
+    }
   };
 
   const handleSend = () => {
@@ -96,10 +111,11 @@ const ChatPage = () => {
       isNew: true,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInput("");
     
-    simulateAIResponse(userMessage.text);
+    getAIResponse(newMessages);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -131,8 +147,9 @@ const ChatPage = () => {
       timestamp: formatTime(),
       isNew: true,
     };
-    setMessages((prev) => [...prev, moodMessage]);
-    simulateAIResponse(moodMessage.text);
+    const newMessages = [...messages, moodMessage];
+    setMessages(newMessages);
+    getAIResponse(newMessages);
   };
 
   return (
