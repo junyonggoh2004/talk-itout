@@ -12,6 +12,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signIn, signUp, user, userRole, isLoading: authLoading } = useAuth();
@@ -48,7 +49,7 @@ const LoginPage = () => {
           description: "You're now logged in.",
         });
       } else {
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(email, password, displayName);
         if (error) {
           toast({
             title: "Sign up failed",
@@ -160,6 +161,23 @@ const LoginPage = () => {
 
               <TabsContent value="signup">
                 <form onSubmit={(e) => handleSubmit(e, "signup")} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name">Display Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="signup-name"
+                        type="text"
+                        placeholder="Your name or username"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        className="pl-10"
+                        required
+                        maxLength={50}
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <div className="relative">
