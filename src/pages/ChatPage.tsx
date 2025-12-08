@@ -40,6 +40,8 @@ const ChatPage = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedQuickMood, setSelectedQuickMood] = useState<string | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { speak, stop, isPlaying, isLoading: isSpeaking } = useTextToSpeech();
 
@@ -69,8 +71,34 @@ const ChatPage = () => {
     return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  const fetchSuggestions = async (assistantMessage: string, allMessages: Message[]) => {
+    setIsLoadingSuggestions(true);
+    try {
+      const conversationContext = allMessages
+        .slice(-4)
+        .map(m => `${m.sender}: ${m.text}`)
+        .join(" | ");
+
+      const { data, error } = await supabase.functions.invoke('chat-suggestions', {
+        body: { 
+          lastAssistantMessage: assistantMessage,
+          conversationContext 
+        }
+      });
+
+      if (!error && data?.suggestions) {
+        setSuggestedReplies(data.suggestions);
+      }
+    } catch (err) {
+      console.error("Failed to fetch suggestions:", err);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
   const getAIResponse = async (allMessages: Message[]) => {
     setIsTyping(true);
+    setSuggestedReplies([]); // Clear suggestions while typing
     
     try {
       // Convert messages to the format expected by the API
@@ -92,22 +120,27 @@ const ChatPage = () => {
 
       const responseText = data?.message || "I'm here to listen. Could you tell me more?";
       
-      setMessages((prev) => [
-        ...prev,
+      const newMessages = [
+        ...allMessages,
         {
           id: Date.now().toString(),
           text: responseText,
-          sender: "assistant",
+          sender: "assistant" as const,
           timestamp: formatTime(),
           isNew: true,
         },
-      ]);
+      ];
+      
+      setMessages(newMessages);
       setIsTyping(false);
 
       // Speak the response if voice is enabled
       if (voiceEnabled) {
         speak(responseText);
       }
+
+      // Fetch suggestions after the response
+      fetchSuggestions(responseText, newMessages);
     } catch (err) {
       console.error("Chat error:", err);
       toast.error("Something went wrong. Please try again.");
@@ -115,12 +148,13 @@ const ChatPage = () => {
     }
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = (text?: string) => {
+    const messageText = text || input.trim();
+    if (!messageText) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: input.trim(),
+      text: messageText,
       sender: "user",
       timestamp: formatTime(),
       isNew: true,
@@ -129,8 +163,13 @@ const ChatPage = () => {
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
+    setSuggestedReplies([]); // Clear suggestions when sending
     
     getAIResponse(newMessages);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    handleSend(suggestion);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -144,6 +183,7 @@ const ChatPage = () => {
     stop(); // Stop any playing audio
     setMessages(initialMessages);
     setSelectedQuickMood(null);
+    setSuggestedReplies([]);
   };
 
   const toggleVoice = () => {
@@ -275,6 +315,38 @@ const ChatPage = () => {
 
           {/* Input area */}
           <div className="p-4 border-t border-border/50 bg-card">
+            {/* Suggested replies */}
+            {suggestedReplies.length > 0 && !isTyping && (
+              <div className="flex flex-wrap gap-2 mb-3 animate-fade-in">
+                {suggestedReplies.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className={cn(
+                      "px-4 py-2 rounded-full",
+                      "bg-secondary text-foreground",
+                      "hover:bg-secondary/80 transition-colors",
+                      "text-sm font-medium",
+                      "border border-border/50"
+                    )}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {isLoadingSuggestions && (
+              <div className="flex gap-2 mb-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="h-9 w-24 rounded-full bg-secondary/50 animate-pulse"
+                  />
+                ))}
+              </div>
+            )}
+
             <div className="flex items-end gap-2">
               <Button
                 variant={isRecording ? "destructive" : "secondary"}
@@ -309,7 +381,7 @@ const ChatPage = () => {
               </div>
               
               <Button
-                onClick={handleSend}
+                onClick={() => handleSend()}
                 disabled={!input.trim() || isTyping}
                 size="icon"
                 className="shrink-0 rounded-full"
