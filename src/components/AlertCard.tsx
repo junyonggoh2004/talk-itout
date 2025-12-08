@@ -10,6 +10,7 @@ interface Alert {
   channel: string;
   message: string;
   userAlias: string;
+  mood?: string;
   timestamp: string;
 }
 
@@ -64,8 +65,14 @@ const AlertCard = ({ alert, onReview }: AlertCardProps) => {
           <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <User className="w-3 h-3" />
-              User: {alert.userAlias}
+              {alert.userAlias}
             </span>
+            {alert.mood && (
+              <span className="flex items-center gap-1">
+                <Heart className="w-3 h-3" />
+                Mood: {alert.mood}
+              </span>
+            )}
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {alert.timestamp}
