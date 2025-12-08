@@ -2,25 +2,35 @@ import { Heart, MessageCircle, Timer, LayoutDashboard, User, LogOut } from "luci
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, userRole, signOut } = useAuth();
-
-  const studentNavItems = [
-    { to: "/mood", label: "Mood", icon: Heart },
-    { to: "/chat", label: "Chat", icon: MessageCircle },
-    { to: "/activities", label: "Activities", icon: Timer },
-  ];
-
-  const counsellorNavItems = [
-    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  ];
+  const {
+    user,
+    userRole,
+    signOut
+  } = useAuth();
+  const studentNavItems = [{
+    to: "/mood",
+    label: "Mood",
+    icon: Heart
+  }, {
+    to: "/chat",
+    label: "Chat",
+    icon: MessageCircle
+  }, {
+    to: "/activities",
+    label: "Activities",
+    icon: Timer
+  }];
+  const counsellorNavItems = [{
+    to: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard
+  }];
 
   // Counsellors only see counsellor nav, everyone else sees student nav
   const navItems = userRole === "counsellor" ? counsellorNavItems : studentNavItems;
-
   const handleLogout = async () => {
     await signOut();
     navigate("/");
@@ -29,9 +39,7 @@ const Header = () => {
   // Get display name from email
   const displayName = user?.email?.split("@")[0] || "User";
   const roleLabel = userRole === "counsellor" ? "Counsellor" : "Student";
-
-  return (
-    <header className="bg-primary py-3 px-4 md:px-6 shadow-soft">
+  return <header className="bg-primary py-3 px-4 md:px-6 shadow-soft">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
@@ -48,30 +56,15 @@ const Header = () => {
 
         {/* Navigation */}
         <nav className="flex items-center gap-1 md:gap-2">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.to;
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200",
-                  isActive
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-primary-foreground/90 hover:bg-primary-foreground/10"
-                )}
-              >
-                <item.icon className="w-4 h-4" />
-                <span className="hidden md:inline text-sm font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
+          {navItems.map(item => {
+          const isActive = location.pathname === item.to;
+          return;
+        })}
         </nav>
 
         {/* User info & Auth buttons */}
         <div className="flex items-center gap-3">
-          {user ? (
-            <>
+          {user ? <>
               {/* User info badge */}
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-foreground/10">
                 <div className="w-7 h-7 rounded-full bg-card flex items-center justify-center">
@@ -87,27 +80,16 @@ const Header = () => {
                 </div>
               </div>
               
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-primary-foreground/90 hover:bg-primary-foreground/10 transition-all"
-              >
+              <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 rounded-lg text-primary-foreground/90 hover:bg-primary-foreground/10 transition-all">
                 <LogOut className="w-4 h-4" />
                 <span className="hidden md:inline text-sm font-medium">Logout</span>
               </button>
-            </>
-          ) : (
-            <Link
-              to="/login"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card text-foreground shadow-sm hover:shadow-hover transition-all text-sm font-medium"
-            >
+            </> : <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card text-foreground shadow-sm hover:shadow-hover transition-all text-sm font-medium">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Login</span>
-            </Link>
-          )}
+            </Link>}
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Header;
