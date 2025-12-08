@@ -32,6 +32,9 @@ const moodLabels: Record<string, string> = {
   great: "Great",
 };
 
+// Test user email that can have unlimited check-ins
+const TEST_USER_EMAIL = "test@student.com";
+
 const MoodPage = () => {
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [thoughts, setThoughts] = useState("");
@@ -69,12 +72,15 @@ const MoodPage = () => {
       const todayStart = startOfDay(today).toISOString();
       const todayEnd = endOfDay(today).toISOString();
 
+      // Skip daily limit check for test user
+      const isTestUser = user?.email === TEST_USER_EMAIL;
+      
       const todayCheckin = (data || []).find((c) => {
         const checkinDate = new Date(c.created_at);
         return checkinDate >= new Date(todayStart) && checkinDate <= new Date(todayEnd);
       });
 
-      setHasCheckedInToday(!!todayCheckin);
+      setHasCheckedInToday(!isTestUser && !!todayCheckin);
     }
 
     setIsLoading(false);
