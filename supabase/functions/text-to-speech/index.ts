@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice } = await req.json()
+    const { text, voice, stream } = await req.json()
 
     if (!text) {
       throw new Error('Text is required')
@@ -26,10 +26,11 @@ serve(async (req) => {
     // Use provided voice or default custom voice
     const voiceId = voice || '6qpxBH5KUSDb40bij36w'
 
-    console.log(`Generating speech for text: "${text.substring(0, 50)}..." with voice: ${voiceId}`)
+    console.log(`Generating speech for text: "${text.substring(0, 50)}..." with voice: ${voiceId}, streaming: ${stream}`)
 
-    // Generate speech from text using ElevenLabs API
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+    // Use streaming endpoint for lower latency
+    const streamParam = stream ? '?output_format=mp3_44100_128' : ''
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream${streamParam}`, {
       method: 'POST',
       headers: {
         'xi-api-key': ELEVENLABS_API_KEY,
@@ -51,7 +52,19 @@ serve(async (req) => {
       throw new Error(`ElevenLabs API error: ${response.status}`)
     }
 
-    // Convert audio buffer to base64 using chunked approach to avoid stack overflow
+    // If streaming is requested, pipe the response directly
+    if (stream && response.body) {
+      console.log('Streaming audio response')
+      return new Response(response.body, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'audio/mpeg',
+          'Transfer-Encoding': 'chunked',
+        },
+      })
+    }
+
+    // Non-streaming: Convert audio buffer to base64 using chunked approach to avoid stack overflow
     const arrayBuffer = await response.arrayBuffer()
     const uint8Array = new Uint8Array(arrayBuffer)
     
