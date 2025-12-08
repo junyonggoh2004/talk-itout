@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Send, Mic, Trash2 } from "lucide-react";
+import { MessageCircle, Send, Mic, Trash2, Volume2, VolumeX, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import ChatBubble from "@/components/ChatBubble";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface Message {
   id: string;
@@ -35,7 +36,9 @@ const ChatPage = () => {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [selectedQuickMood, setSelectedQuickMood] = useState<string | null>(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { speak, stop, isPlaying, isLoading: isSpeaking } = useTextToSpeech();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -74,6 +77,11 @@ const ChatPage = () => {
         },
       ]);
       setIsTyping(false);
+
+      // Speak the response if voice is enabled
+      if (voiceEnabled) {
+        speak(randomResponse);
+      }
     }, 1500);
   };
 
@@ -102,8 +110,16 @@ const ChatPage = () => {
   };
 
   const handleClearChat = () => {
+    stop(); // Stop any playing audio
     setMessages(initialMessages);
     setSelectedQuickMood(null);
+  };
+
+  const toggleVoice = () => {
+    if (isPlaying) {
+      stop();
+    }
+    setVoiceEnabled(!voiceEnabled);
   };
 
   const handleQuickMood = (mood: string) => {
@@ -143,15 +159,32 @@ const ChatPage = () => {
                   I'm here to listen and support you.
                 </p>
               </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleClearChat}
-                className="shrink-0"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Clear chat
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={toggleVoice}
+                  className="shrink-0"
+                  title={voiceEnabled ? "Disable voice" : "Enable voice"}
+                >
+                  {isSpeaking ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : voiceEnabled ? (
+                    <Volume2 className="w-4 h-4" />
+                  ) : (
+                    <VolumeX className="w-4 h-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleClearChat}
+                  className="shrink-0"
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Clear chat
+                </Button>
+              </div>
             </div>
 
             {/* Quick mood selector */}
