@@ -40,9 +40,7 @@ const AlertCard = ({
           <div className="flex-1 space-y-3">
             {/* Tags */}
             <div className="flex flex-wrap items-center gap-2">
-              <Badge className={cn("uppercase text-xs font-bold", severityStyles[alert.severity])}>
-                {alert.severity}
-              </Badge>
+              
               
             </div>
 
