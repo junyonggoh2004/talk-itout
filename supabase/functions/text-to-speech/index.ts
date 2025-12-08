@@ -23,8 +23,8 @@ serve(async (req) => {
       throw new Error('ELEVENLABS_API_KEY is not configured')
     }
 
-    // Use provided voice or default to "Sarah" - a warm, friendly voice
-    const voiceId = voice || 'EXAVITQu4vr4xnSDxMaL'
+    // Use provided voice or default custom voice
+    const voiceId = voice || '6qpxBH5KUSDb40bij36w'
 
     console.log(`Generating speech for text: "${text.substring(0, 50)}..." with voice: ${voiceId}`)
 
