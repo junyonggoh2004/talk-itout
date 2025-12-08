@@ -5,33 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
-
-    console.log("Processing chat request with", messages.length, "messages");
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [
-          {
-            role: "system",
-            content: `You are an AI-powered school counsellor chatbot named 'Talk.ItOut'. Your primary user base is Singaporean primary and secondary school students (ages 7-16). Your personality, tone, and advice must be a professional and culturally-aware simulation of a real school counsellor in a Singaporean educational setting.
+const systemPrompt = `You are an AI-powered school counsellor chatbot named 'Talk.ItOut'. Your primary user base is Singaporean primary and secondary school students (ages 7-16). Your personality, tone, and advice must be a professional and culturally-aware simulation of a real school counsellor in a Singaporean educational setting.
 
 ### Key Characteristics & Traits
 1.  **Empathetic and Non-Judgmental:** Respond with warmth, compassion, and unconditional positive regard. Never dismiss or minimize a student's feelings, even if the concern seems minor. Validate their emotions first. Use Singaporean English (Singlish) terms only when a student uses them first, to reflect their language without sounding inauthentic or condescending.
@@ -60,31 +34,53 @@ Upon the student's first message, your response must include:
 * A brief, clear statement about your role (Talk.ItOut, a safe space).
 * A clear, concise restatement of the limits of confidentiality and safety protocol.
 
-**Example Initial Response:** "Hi there, this is a safe, private space for you to share whatever is on your mind. Thank you for reaching out. Please know that everything you share with me is confidential, unless you or someone else is in immediate danger. How can I support you today?"`,
+**Example Initial Response:** "Hi there, this is a safe, private space for you to share whatever is on your mind. Thank you for reaching out. Please know that everything you share with me is confidential, unless you or someone else is in immediate danger. How can I support you today?"`;
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { messages } = await req.json();
+    const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
+
+    if (!GOOGLE_AI_API_KEY) {
+      throw new Error("GOOGLE_AI_API_KEY is not configured");
+    }
+
+    console.log("Processing chat request with", messages.length, "messages");
+
+    // Convert messages to Google AI format
+    const contents = messages.map((msg: { role: string; content: string }) => ({
+      role: msg.role === "assistant" ? "model" : "user",
+      parts: [{ text: msg.content }],
+    }));
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: contents,
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
           },
-          ...messages,
-        ],
-      }),
-    });
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1024,
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
-      if (response.status === 429) {
-        console.error("Rate limit exceeded");
-        return new Response(JSON.stringify({ error: "Rate limits exceeded, please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        console.error("Payment required");
-        return new Response(JSON.stringify({ error: "Payment required, please add funds." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+      console.error("Google AI error:", response.status, errorText);
+      return new Response(JSON.stringify({ error: "AI service error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -92,7 +88,7 @@ Upon the student's first message, your response must include:
 
     const data = await response.json();
     const assistantMessage =
-      data.choices?.[0]?.message?.content || "I'm here to listen. Could you tell me more about what's on your mind?";
+      data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm here to listen. Could you tell me more about what's on your mind?";
 
     console.log("Successfully generated response");
 
