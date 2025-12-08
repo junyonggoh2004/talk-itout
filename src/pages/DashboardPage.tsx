@@ -239,7 +239,7 @@ const DashboardPage = () => {
           <div className="flex items-center gap-2 mb-6">
             <Clock className="w-5 h-5 text-muted-foreground" />
             <h2 className="text-xl font-display font-bold text-foreground">
-              {alerts.length > 0 ? `Pending Alerts (${alerts.length})` : "Risk Flags - Requires Attention"}
+              {alerts.length > 0 ? `Risk Alerts (${alerts.length})` : "Risk Alerts"}
             </h2>
           </div>
 
