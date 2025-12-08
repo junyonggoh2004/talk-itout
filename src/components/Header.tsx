@@ -18,12 +18,17 @@ const Header = () => {
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   ];
 
+  // Counsellors only see counsellor nav, everyone else sees student nav
   const navItems = userRole === "counsellor" ? counsellorNavItems : studentNavItems;
 
   const handleLogout = async () => {
     await signOut();
     navigate("/");
   };
+
+  // Get display name from email
+  const displayName = user?.email?.split("@")[0] || "User";
+  const roleLabel = userRole === "counsellor" ? "Counsellor" : "Student";
 
   return (
     <header className="bg-primary py-3 px-4 md:px-6 shadow-soft">
@@ -63,16 +68,33 @@ const Header = () => {
           })}
         </nav>
 
-        {/* Auth buttons */}
-        <div className="flex items-center gap-2">
+        {/* User info & Auth buttons */}
+        <div className="flex items-center gap-3">
           {user ? (
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-primary-foreground/90 hover:bg-primary-foreground/10 transition-all"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden md:inline text-sm font-medium">Logout</span>
-            </button>
+            <>
+              {/* User info badge */}
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-foreground/10">
+                <div className="w-7 h-7 rounded-full bg-card flex items-center justify-center">
+                  <User className="w-4 h-4 text-foreground" />
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-primary-foreground leading-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-xs text-primary-foreground/70 leading-tight">
+                    {roleLabel}
+                  </p>
+                </div>
+              </div>
+              
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-primary-foreground/90 hover:bg-primary-foreground/10 transition-all"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden md:inline text-sm font-medium">Logout</span>
+              </button>
+            </>
           ) : (
             <Link
               to="/login"
