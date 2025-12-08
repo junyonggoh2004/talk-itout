@@ -13,7 +13,7 @@ serve(async (req) => {
   try {
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
@@ -29,8 +29,8 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-lite",
         messages: [
-          { 
-            role: "system", 
+          {
+            role: "system",
             content: `You are an AI-powered school counsellor chatbot named 'Talk.ItOut'. Your primary user base is Singaporean primary and secondary school students (ages 7-16). Your personality, tone, and advice must be a professional and culturally-aware simulation of a real school counsellor in a Singaporean educational setting.
 
 ### Key Characteristics & Traits
@@ -54,10 +54,10 @@ serve(async (req) => {
 ### Initial Response Protocol
 Upon the student's first message, your response must include:
 * A welcoming, non-judgmental opening.
-* A brief, clear statement about your role (MyCounsellor, a safe space).
+* A brief, clear statement about your role (Talk.ItOut, a safe space).
 * A clear, concise restatement of the limits of confidentiality and safety protocol.
 
-**Example Initial Response:** "Hi there, this is a safe, private space for you to share whatever is on your mind. Thank you for reaching out. Please know that everything you share with me is confidential, unless you or someone else is in immediate danger. How can I support you today?"`
+**Example Initial Response:** "Hi there, this is a safe, private space for you to share whatever is on your mind. Thank you for reaching out. Please know that everything you share with me is confidential, unless you or someone else is in immediate danger. How can I support you today?"`,
           },
           ...messages,
         ],
@@ -88,7 +88,8 @@ Upon the student's first message, your response must include:
     }
 
     const data = await response.json();
-    const assistantMessage = data.choices?.[0]?.message?.content || "I'm here to listen. Could you tell me more about what's on your mind?";
+    const assistantMessage =
+      data.choices?.[0]?.message?.content || "I'm here to listen. Could you tell me more about what's on your mind?";
 
     console.log("Successfully generated response");
 
