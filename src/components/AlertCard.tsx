@@ -74,7 +74,7 @@ const AlertCard = ({
               Details
             </Button>
             {isPending && <Button onClick={() => setChatOpen(true)} className="w-full">
-                Approach
+                Check In
               </Button>}
           </div>
         </div>
