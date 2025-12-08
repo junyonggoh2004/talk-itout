@@ -33,7 +33,7 @@ const moodLabels: Record<string, string> = {
 };
 
 // Test user email that can have unlimited check-ins
-const TEST_USER_EMAIL = "test@student.com";
+const TEST_USER_EMAIL = "student-test";
 
 const MoodPage = () => {
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
