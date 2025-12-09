@@ -49,8 +49,8 @@ const ChatPage = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { speak, stop, isPlaying, isLoading: isSpeaking, currentAudio } = useTextToSpeech();
   
-  // Audio analysis for lip sync
-  const { volume: audioVolume, isSpeaking: isAudioSpeaking } = useAudioAnalyzer(currentAudio);
+  // Audio analysis for lip sync - pass isPlaying state for simulation
+  const { volume: audioVolume, isSpeaking: isAudioSpeaking } = useAudioAnalyzer(currentAudio, isPlaying);
   
   // Emotion detection from last assistant message
   const emotion = useEmotionDetection(lastAssistantMessage);
