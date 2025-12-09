@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Shield, ArrowRight } from "lucide-react";
+import { Heart, MessageCircle, Wind, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,12 @@ const features = [{
   description: "Chat with our friendly AI companion about anything on your mind.",
   link: "/chat",
   color: "text-primary"
+}, {
+  icon: Wind,
+  title: "Calm Zone",
+  description: "Take a breathing break to relax and calm your mind.",
+  link: "/calm",
+  color: "text-blue-500"
 }];
 const Index = () => {
   return <div className="min-h-screen bg-background">
