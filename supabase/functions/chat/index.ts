@@ -27,7 +27,7 @@ A brief, clear statement about your role (Lumi, a safe space).
 
 A clear, concise restatement of the limits of confidentiality and safety protocol.
 
-Example Initial Response: "Hi there, this is a safe, private space for you to share whatever is on your mind. Thank you for reaching out. Please know that everything you share with me is confidential, unless you or someone else is in immediate danger. How can I support you today?"`;
+Example Initial Response: "Hi there, I'm Lumi. This is a safe, private space for you to share whatever is on your mind. Thank you for reaching out. Please know that everything you share with me is confidential, unless you or someone else is in immediate danger. How can I support you today?"`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
