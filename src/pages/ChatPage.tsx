@@ -2,11 +2,14 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { MessageCircle, Send, Mic, MicOff, Trash2, Volume2, VolumeX, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import ChatBubble from "@/components/ChatBubble";
+import AvatarContainer from "@/components/AvatarContainer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useVoiceRecording } from "@/hooks/useVoiceRecording";
+import { useAudioAnalyzer } from "@/hooks/useAudioAnalyzer";
+import { useEmotionDetection } from "@/hooks/useEmotionDetection";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -42,8 +45,15 @@ const ChatPage = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [lastAssistantMessage, setLastAssistantMessage] = useState(initialMessages[0].text);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { speak, stop, isPlaying, isLoading: isSpeaking } = useTextToSpeech();
+  const { speak, stop, isPlaying, isLoading: isSpeaking, currentAudio } = useTextToSpeech();
+  
+  // Audio analysis for lip sync
+  const { volume: audioVolume, isSpeaking: isAudioSpeaking } = useAudioAnalyzer(currentAudio);
+  
+  // Emotion detection from last assistant message
+  const emotion = useEmotionDetection(lastAssistantMessage);
 
   const handleVoiceTranscript = useCallback((text: string) => {
     setInput(prev => prev ? `${prev} ${text}` : text);
@@ -98,10 +108,9 @@ const ChatPage = () => {
 
   const getAIResponse = async (allMessages: Message[]) => {
     setIsTyping(true);
-    setSuggestedReplies([]); // Clear suggestions while typing
+    setSuggestedReplies([]);
     
     try {
-      // Convert messages to the format expected by the API
       const chatHistory = allMessages.map(msg => ({
         role: msg.sender === "user" ? "user" : "assistant",
         content: msg.text
@@ -132,14 +141,13 @@ const ChatPage = () => {
       ];
       
       setMessages(newMessages);
+      setLastAssistantMessage(responseText);
       setIsTyping(false);
 
-      // Speak the response if voice is enabled
       if (voiceEnabled) {
         speak(responseText);
       }
 
-      // Fetch suggestions after the response
       fetchSuggestions(responseText, newMessages);
     } catch (err) {
       console.error("Chat error:", err);
@@ -163,7 +171,7 @@ const ChatPage = () => {
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
-    setSuggestedReplies([]); // Clear suggestions when sending
+    setSuggestedReplies([]);
     
     getAIResponse(newMessages);
   };
@@ -180,10 +188,11 @@ const ChatPage = () => {
   };
 
   const handleClearChat = () => {
-    stop(); // Stop any playing audio
+    stop();
     setMessages(initialMessages);
     setSelectedQuickMood(null);
     setSuggestedReplies([]);
+    setLastAssistantMessage(initialMessages[0].text);
   };
 
   const toggleVoice = () => {
@@ -211,183 +220,204 @@ const ChatPage = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <main className="flex-1 container max-w-4xl mx-auto px-4 py-4 md:py-6 flex flex-col">
-        {/* Chat container */}
-        <div className="flex-1 card-elevated flex flex-col overflow-hidden">
-          {/* Chat header */}
-          <div className="p-4 md:p-6 border-b border-border/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                  TALK
+      <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 md:py-6 flex flex-col">
+        {/* Main content grid */}
+        <div className="flex-1 flex flex-col lg:flex-row gap-4">
+          {/* Avatar section */}
+          <div className="lg:w-80 shrink-0">
+            <div className="card-elevated p-4 h-full">
+              <AvatarContainer
+                emotion={emotion}
+                audioVolume={audioVolume}
+                isSpeaking={isPlaying || isAudioSpeaking}
+                currentText={lastAssistantMessage}
+              />
+              <div className="mt-3 text-center">
+                <p className="text-sm font-medium text-foreground">MyCounsellor</p>
+                <p className="text-xs text-muted-foreground">
+                  {isPlaying ? "Speaking..." : emotion !== 'neutral' ? `Feeling ${emotion}` : "Listening"}
                 </p>
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-primary" />
-                  <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
-                    Let's Talk
-                  </h1>
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  I'm here to listen and support you.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={toggleVoice}
-                  className="shrink-0"
-                  title={voiceEnabled ? "Disable voice" : "Enable voice"}
-                >
-                  {isSpeaking ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : voiceEnabled ? (
-                    <Volume2 className="w-4 h-4" />
-                  ) : (
-                    <VolumeX className="w-4 h-4" />
-                  )}
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleClearChat}
-                  className="shrink-0"
-                >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Clear chat
-                </Button>
               </div>
             </div>
+          </div>
 
-            {/* Quick mood selector */}
-            {!selectedQuickMood && (
-              <div className="mt-4 p-4 bg-secondary/50 rounded-xl animate-fade-in">
-                <p className="text-sm font-medium text-foreground mb-3">
-                  What's your mood like today?
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {quickMoods.map((mood) => (
+          {/* Chat container */}
+          <div className="flex-1 card-elevated flex flex-col overflow-hidden">
+            {/* Chat header */}
+            <div className="p-4 md:p-6 border-b border-border/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                    TALK
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-primary" />
+                    <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
+                      Let's Talk
+                    </h1>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    I'm here to listen and support you.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={toggleVoice}
+                    className="shrink-0"
+                    title={voiceEnabled ? "Disable voice" : "Enable voice"}
+                  >
+                    {isSpeaking ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : voiceEnabled ? (
+                      <Volume2 className="w-4 h-4" />
+                    ) : (
+                      <VolumeX className="w-4 h-4" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleClearChat}
+                    className="shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Clear chat
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick mood selector */}
+              {!selectedQuickMood && (
+                <div className="mt-4 p-4 bg-secondary/50 rounded-xl animate-fade-in">
+                  <p className="text-sm font-medium text-foreground mb-3">
+                    What's your mood like today?
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {quickMoods.map((mood) => (
+                      <button
+                        key={mood.label}
+                        onClick={() => handleQuickMood(mood.label)}
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-2 rounded-full",
+                          "bg-chat-assistant text-primary-foreground",
+                          "hover:opacity-90 transition-opacity",
+                          "text-sm font-medium"
+                        )}
+                      >
+                        <span>{mood.emoji}</span>
+                        <span>{mood.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Messages area */}
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+              {messages.map((message) => (
+                <ChatBubble
+                  key={message.id}
+                  message={message.text}
+                  sender={message.sender}
+                  timestamp={message.timestamp}
+                  isNew={message.isNew}
+                />
+              ))}
+              
+              {isTyping && (
+                <div className="flex items-center gap-2 text-muted-foreground animate-pulse">
+                  <div className="chat-bubble-assistant px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input area */}
+            <div className="p-4 border-t border-border/50 bg-card">
+              {/* Suggested replies */}
+              {suggestedReplies.length > 0 && !isTyping && (
+                <div className="flex flex-wrap gap-2 mb-3 animate-fade-in">
+                  {suggestedReplies.map((suggestion, index) => (
                     <button
-                      key={mood.label}
-                      onClick={() => handleQuickMood(mood.label)}
+                      key={index}
+                      onClick={() => handleSuggestionClick(suggestion)}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full",
-                        "bg-chat-assistant text-primary-foreground",
-                        "hover:opacity-90 transition-opacity",
-                        "text-sm font-medium"
+                        "px-4 py-2 rounded-full",
+                        "bg-secondary text-foreground",
+                        "hover:bg-secondary/80 transition-colors",
+                        "text-sm font-medium",
+                        "border border-border/50"
                       )}
                     >
-                      <span>{mood.emoji}</span>
-                      <span>{mood.label}</span>
+                      {suggestion}
                     </button>
                   ))}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
 
-          {/* Messages area */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-            {messages.map((message) => (
-              <ChatBubble
-                key={message.id}
-                message={message.text}
-                sender={message.sender}
-                timestamp={message.timestamp}
-                isNew={message.isNew}
-              />
-            ))}
-            
-            {isTyping && (
-              <div className="flex items-center gap-2 text-muted-foreground animate-pulse">
-                <div className="chat-bubble-assistant px-4 py-3">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
+              {isLoadingSuggestions && (
+                <div className="flex gap-2 mb-3">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="h-9 w-24 rounded-full bg-secondary/50 animate-pulse"
+                    />
+                  ))}
                 </div>
-              </div>
-            )}
-            
-            <div ref={messagesEndRef} />
-          </div>
+              )}
 
-          {/* Input area */}
-          <div className="p-4 border-t border-border/50 bg-card">
-            {/* Suggested replies */}
-            {suggestedReplies.length > 0 && !isTyping && (
-              <div className="flex flex-wrap gap-2 mb-3 animate-fade-in">
-                {suggestedReplies.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className={cn(
-                      "px-4 py-2 rounded-full",
-                      "bg-secondary text-foreground",
-                      "hover:bg-secondary/80 transition-colors",
-                      "text-sm font-medium",
-                      "border border-border/50"
-                    )}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {isLoadingSuggestions && (
-              <div className="flex gap-2 mb-3">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-9 w-24 rounded-full bg-secondary/50 animate-pulse"
+              <div className="flex items-end gap-2">
+                <Button
+                  variant={isRecording ? "destructive" : "secondary"}
+                  size="icon"
+                  className={cn(
+                    "shrink-0 rounded-full transition-all",
+                    isRecording && "animate-pulse"
+                  )}
+                  onClick={toggleRecording}
+                  disabled={!isVoiceSupported}
+                  title={isRecording ? "Stop recording" : "Start voice input"}
+                >
+                  {isRecording ? (
+                    <MicOff className="w-4 h-4" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </Button>
+                
+                <div className="flex-1 relative">
+                  <Textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="Share what's on your mind..."
+                    rows={1}
+                    className="resize-none pr-12 min-h-[48px] max-h-32 bg-secondary/50"
                   />
-                ))}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Press Enter to send, Shift+Enter for a new line
+                  </p>
+                </div>
+                
+                <Button
+                  onClick={() => handleSend()}
+                  disabled={!input.trim() || isTyping}
+                  size="icon"
+                  className="shrink-0 rounded-full"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
               </div>
-            )}
-
-            <div className="flex items-end gap-2">
-              <Button
-                variant={isRecording ? "destructive" : "secondary"}
-                size="icon"
-                className={cn(
-                  "shrink-0 rounded-full transition-all",
-                  isRecording && "animate-pulse"
-                )}
-                onClick={toggleRecording}
-                disabled={!isVoiceSupported}
-                title={isRecording ? "Stop recording" : "Start voice input"}
-              >
-                {isRecording ? (
-                  <MicOff className="w-4 h-4" />
-                ) : (
-                  <Mic className="w-4 h-4" />
-                )}
-              </Button>
-              
-              <div className="flex-1 relative">
-                <Textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Share what's on your mind..."
-                  rows={1}
-                  className="resize-none pr-12 min-h-[48px] max-h-32 bg-secondary/50"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Press Enter to send, Shift+Enter for a new line
-                </p>
-              </div>
-              
-              <Button
-                onClick={() => handleSend()}
-                disabled={!input.trim() || isTyping}
-                size="icon"
-                className="shrink-0 rounded-full"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
             </div>
           </div>
         </div>
