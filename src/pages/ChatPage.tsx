@@ -215,11 +215,11 @@ const ChatPage = () => {
       <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 md:py-6 flex flex-col min-h-0 overflow-hidden">
         {/* Main content grid */}
         <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0 overflow-hidden">
-          {/* Avatar section - scrollable on mobile only */}
-          <div className="lg:w-80 shrink-0 overflow-y-auto lg:overflow-visible">
-            <div className="card-elevated p-4">
+          {/* Avatar section - limited height on small screens */}
+          <div className="lg:w-80 shrink-0 max-h-[30vh] lg:max-h-none overflow-hidden">
+            <div className="card-elevated p-4 h-full">
               <AvatarContainer emotion={emotion} audioVolume={audioVolume} isSpeaking={isPlaying || isAudioSpeaking} currentText={lastAssistantMessage} />
-              <div className="mt-3 text-center">
+              <div className="mt-2 text-center">
                 <p className="text-sm font-medium text-foreground">Lumi</p>
                 <p className="text-xs text-muted-foreground">
                   {isPlaying ? "Speaking..." : emotion !== 'neutral' ? `Feeling ${emotion}` : "Listening"}
