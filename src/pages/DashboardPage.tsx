@@ -1,10 +1,19 @@
 import { useState, useEffect } from "react";
-import { Shield, AlertTriangle, Clock } from "lucide-react";
+import { Shield, AlertTriangle, Clock, Filter } from "lucide-react";
 import Header from "@/components/Header";
 import AlertCard from "@/components/AlertCard";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 interface RiskFlag {
   id: string;
   user_id: string;
@@ -18,12 +27,14 @@ interface RiskFlag {
   mood?: string;
   display_name?: string;
 }
+
 interface DashboardStats {
   totalStudents: number;
   activeWeek: number;
   avgMood: number;
   openFlags: number;
 }
+
 const moodToNumber: Record<string, number> = {
   very_bad: 1,
   bad: 2,
@@ -31,6 +42,7 @@ const moodToNumber: Record<string, number> = {
   good: 4,
   great: 5
 };
+
 const DashboardPage = () => {
   const [alerts, setAlerts] = useState<RiskFlag[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
@@ -40,12 +52,17 @@ const DashboardPage = () => {
     openFlags: 0
   });
   const [isLoading, setIsLoading] = useState(true);
-  const {
-    toast
-  } = useToast();
+  
+  // Filter states
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  
+  const { toast } = useToast();
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
   const fetchDashboardData = async () => {
     setIsLoading(true);
 
@@ -119,7 +136,16 @@ const DashboardPage = () => {
     });
     setIsLoading(false);
   };
+
+  // Filter alerts based on selected filters
+  const filteredAlerts = alerts.filter(alert => {
+    const matchesSeverity = severityFilter === "all" || alert.severity === severityFilter;
+    const matchesSource = sourceFilter === "all" || alert.channel === sourceFilter;
+    return matchesSeverity && matchesSource;
+  });
+
   const criticalCount = alerts.filter(a => a.severity === "critical").length;
+
   const handleStatusChange = async (alertId: string, newStatus: string) => {
     const {
       error
@@ -141,6 +167,7 @@ const DashboardPage = () => {
       fetchDashboardData();
     }
   };
+
   const moodLabels: Record<string, string> = {
     very_bad: "Very Bad",
     bad: "Bad",
@@ -148,6 +175,7 @@ const DashboardPage = () => {
     good: "Good",
     great: "Great"
   };
+
   const formatAlertForCard = (flag: RiskFlag) => ({
     id: flag.id,
     severity: flag.severity as "low" | "medium" | "high" | "critical",
@@ -160,6 +188,14 @@ const DashboardPage = () => {
     status: flag.status,
     userId: flag.user_id
   });
+
+  const clearFilters = () => {
+    setSeverityFilter("all");
+    setSourceFilter("all");
+  };
+
+  const hasActiveFilters = severityFilter !== "all" || sourceFilter !== "all";
+
   return <div className="min-h-screen bg-secondary/50">
       <Header />
 
@@ -224,19 +260,61 @@ const DashboardPage = () => {
 
         {/* Risk Flags section */}
         <section className="card-elevated p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Clock className="w-5 h-5 text-muted-foreground" />
-            <h2 className="text-xl font-display font-bold text-foreground">
-              {alerts.length > 0 ? `Risk Alerts (${alerts.length})` : "Risk Alerts"}
-            </h2>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-muted-foreground" />
+              <h2 className="text-xl font-display font-bold text-foreground">
+                {filteredAlerts.length > 0 ? `Risk Alerts (${filteredAlerts.length})` : "Risk Alerts"}
+              </h2>
+            </div>
+            
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Filters:</span>
+              </div>
+              
+              <Select value={severityFilter} onValueChange={setSeverityFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Severity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Severity</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Source" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  <SelectItem value="chat">Counsellor Chat</SelectItem>
+                  <SelectItem value="mood">Mood Check-in</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  Clear
+                </Button>
+              )}
+            </div>
           </div>
 
           {isLoading ? <div className="py-12 text-center">
               <p className="text-muted-foreground animate-pulse">Loading...</p>
-            </div> : alerts.length > 0 ? <div className="space-y-4">
-              {alerts.map(alert => <AlertCard key={alert.id} alert={formatAlertForCard(alert)} onStatusChange={handleStatusChange} />)}
+            </div> : filteredAlerts.length > 0 ? <div className="space-y-4">
+              {filteredAlerts.map(alert => <AlertCard key={alert.id} alert={formatAlertForCard(alert)} onStatusChange={handleStatusChange} />)}
             </div> : <div className="py-12 text-center">
-              <p className="text-muted-foreground">No open risk flags</p>
+              <p className="text-muted-foreground">
+                {hasActiveFilters ? "No alerts match the selected filters" : "No open risk flags"}
+              </p>
             </div>}
         </section>
       </main>

@@ -5,6 +5,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Trigger words for risk detection
+const CRITICAL_KEYWORDS = [
+  'kill', 'suicide', 'die', 'end it', 'want to die', 'wish i were dead',
+  'ending my life', 'can\'t see the point in living', 'wouldn\'t wake up',
+  'hurt myself', 'cutting', 'self-harm', 'hurt someone', 'make them pay',
+  'disappear', 'can\'t cope', 'scared of what i might do', 'plan to hurt'
+];
+
+const HIGH_RISK_KEYWORDS = [
+  'hopeless', 'worthless', 'no hope', 'what\'s the point', 'empty inside',
+  'lost interest', 'useless', 'can\'t control my rage', 'need help right now'
+];
+
+const COUNSELLOR_REQUEST_PHRASES = [
+  'speak to a counsellor', 'see a counsellor', 'talk to a counsellor',
+  'real counsellor', 'actual counsellor', 'human counsellor', 'real person',
+  'speak to someone', 'talk to someone real', 'need to see someone'
+];
+
 const systemPrompt = `You are an AI-powered school counsellor chatbot named 'Lumi'. Your primary user base is Singaporean primary and secondary school students (ages 7-16). Your personality, tone, and advice must be a professional and culturally-aware simulation of a real school counsellor in a Singaporean educational setting.
 
 ### Key Characteristics & Traits 1.  Empathetic and Non-Judgmental: Respond with warmth, compassion, and unconditional positive regard. Never dismiss or minimize a student's feelings, even if the concern seems minor. Validate their emotions first. Use Singaporean English (Singlish) terms only when a student uses them first, to reflect their language without sounding inauthentic or condescending. 2.  Active Listener and Reflective Responder: Focus on the student's message, emotions, and unspoken concerns. Use paraphrasing and reflective statements (e.g., "It sounds like you're feeling really stressed about your exams, is that right?") to build rapport and ensure understanding. 3.  Confidentiality and Safety: Reiterate the chatbot's confidentiality, but immediately state the non-negotiable limits of confidentiality. If the student uses any of the following extreme phrases, I wish I were dead, I've been thinking about ending my life, I can't see the point in living anymore, I want to die, Sometimes I wish I wouldn't wake up, I want to hurt myself, I feel like smashing things, I have been cutting, I don't care if something bad happens to me, I feel destructive, It will never get better, there is no hope, What's the point of even trying anymore, I feel completely empty inside, I've lost interest in everything I used to love, I am useless and always will be, I have a plan to hurt myself, I am going to make them pay for this, I might hurt someone else if I don't get help, I can't control my rage, I am going to disappear and never come back, I can't cope with this for one more minute, I need help right now, I am scared of what I might do, or expresses any intent to harm themselves or others, or discloses a danger they are currently facing, you MUST provide immediate, compassionate support and state clearly that you are now referring them to an actual counsellor for consultation help, and encourage them to speak with a trusted adult such as a parent, teacher, or school counsellor who can help them in person. 4.  Resourceful and Strengths-Based: Encourage students to tap into their existing strengths, positive coping mechanisms, and support systems (family, friends, teachers). Help them problem-solve by exploring tangible, local strategies. 5.  Patient and Encouraging: Understand that change is a process. Be consistently patient and offer encouragement, particularly if a student expresses feeling stuck, frustrated, or a sense of failure. 6.  Appropriate Language: Use language that is simple, clear, and age-appropriate (primary vs. secondary school level), avoiding overly complex psychological jargon. Maintain a polite and respectful tone ("Please," "Thank you," "I see," etc.).
@@ -25,6 +44,34 @@ First Message Only: Include a welcoming opening, introduce yourself as Lumi, bri
 
 All Subsequent Messages: Jump straight into responding to the student's message with empathy and support. No greetings, no introductions, no "Hi there" openers.`;
 
+// Function to detect risk in message
+function detectRisk(message: string): { detected: boolean; severity: string; riskType: string } | null {
+  const lowerMessage = message.toLowerCase();
+  
+  // Check for counsellor request
+  for (const phrase of COUNSELLOR_REQUEST_PHRASES) {
+    if (lowerMessage.includes(phrase)) {
+      return { detected: true, severity: 'high', riskType: 'Counsellor Request' };
+    }
+  }
+  
+  // Check for critical keywords
+  for (const keyword of CRITICAL_KEYWORDS) {
+    if (lowerMessage.includes(keyword)) {
+      return { detected: true, severity: 'critical', riskType: 'Suicide/Self-Harm Risk' };
+    }
+  }
+  
+  // Check for high risk keywords
+  for (const keyword of HIGH_RISK_KEYWORDS) {
+    if (lowerMessage.includes(keyword)) {
+      return { detected: true, severity: 'high', riskType: 'Mental Health Crisis' };
+    }
+  }
+  
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -39,6 +86,17 @@ serve(async (req) => {
     }
 
     console.log("Processing chat request with", messages.length, "messages");
+
+    // Get the last user message for risk detection
+    const lastUserMessage = messages.filter((m: { role: string }) => m.role === 'user').pop();
+    let riskDetection = null;
+    
+    if (lastUserMessage) {
+      riskDetection = detectRisk(lastUserMessage.content);
+      if (riskDetection) {
+        console.log("Risk detected:", riskDetection);
+      }
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -81,7 +139,10 @@ serve(async (req) => {
 
     console.log("Successfully generated response");
 
-    return new Response(JSON.stringify({ message: assistantMessage }), {
+    return new Response(JSON.stringify({ 
+      message: assistantMessage,
+      riskDetection: riskDetection 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
