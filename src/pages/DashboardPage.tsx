@@ -6,13 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface RiskFlag {
   id: string;
@@ -40,7 +34,7 @@ const moodToNumber: Record<string, number> = {
   bad: 2,
   okay: 3,
   good: 4,
-  great: 5
+  great: 5,
 };
 
 const DashboardPage = () => {
@@ -49,14 +43,14 @@ const DashboardPage = () => {
     totalStudents: 0,
     activeWeek: 0,
     avgMood: 0,
-    openFlags: 0
+    openFlags: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Filter states
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
-  
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -67,39 +61,46 @@ const DashboardPage = () => {
     setIsLoading(true);
 
     // Fetch open risk flags
-    const {
-      data: flagsData,
-      error: flagsError
-    } = await supabase.from("risk_flags").select("*").eq("status", "open").order("created_at", {
-      ascending: false
-    });
+    const { data: flagsData, error: flagsError } = await supabase
+      .from("risk_flags")
+      .select("*")
+      .eq("status", "open")
+      .order("created_at", {
+        ascending: false,
+      });
     if (flagsError) {
       console.error("Error fetching risk flags:", flagsError);
     } else {
       // Enrich flags with mood and display name
-      const enrichedFlags = await Promise.all((flagsData || []).map(async flag => {
-        let mood = "";
-        let displayName = "";
+      const enrichedFlags = await Promise.all(
+        (flagsData || []).map(async (flag) => {
+          let mood = "";
+          let displayName = "";
 
-        // Fetch mood from checkin if available
-        if (flag.checkin_id) {
-          const {
-            data: checkinData
-          } = await supabase.from("mood_checkins").select("mood").eq("id", flag.checkin_id).maybeSingle();
-          mood = checkinData?.mood || "";
-        }
+          // Fetch mood from checkin if available
+          if (flag.checkin_id) {
+            const { data: checkinData } = await supabase
+              .from("mood_checkins")
+              .select("mood")
+              .eq("id", flag.checkin_id)
+              .maybeSingle();
+            mood = checkinData?.mood || "";
+          }
 
-        // Fetch display name from profiles
-        const {
-          data: profileData
-        } = await supabase.from("profiles").select("display_name").eq("id", flag.user_id).maybeSingle();
-        displayName = profileData?.display_name || "";
-        return {
-          ...flag,
-          mood,
-          display_name: displayName
-        };
-      }));
+          // Fetch display name from profiles
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("id", flag.user_id)
+            .maybeSingle();
+          displayName = profileData?.display_name || "";
+          return {
+            ...flag,
+            mood,
+            display_name: displayName,
+          };
+        }),
+      );
       setAlerts(enrichedFlags);
     }
 
@@ -108,21 +109,18 @@ const DashboardPage = () => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     // Get total unique students (users with student role who have check-ins)
-    const {
-      data: studentsData
-    } = await supabase.from("mood_checkins").select("user_id");
-    const uniqueStudents = new Set(studentsData?.map(c => c.user_id) || []);
+    const { data: studentsData } = await supabase.from("mood_checkins").select("user_id");
+    const uniqueStudents = new Set(studentsData?.map((c) => c.user_id) || []);
 
     // Get active students in last 7 days
-    const {
-      data: activeData
-    } = await supabase.from("mood_checkins").select("user_id").gte("created_at", sevenDaysAgo.toISOString());
-    const activeStudents = new Set(activeData?.map(c => c.user_id) || []);
+    const { data: activeData } = await supabase
+      .from("mood_checkins")
+      .select("user_id")
+      .gte("created_at", sevenDaysAgo.toISOString());
+    const activeStudents = new Set(activeData?.map((c) => c.user_id) || []);
 
     // Get average mood from all check-ins
-    const {
-      data: moodData
-    } = await supabase.from("mood_checkins").select("mood");
+    const { data: moodData } = await supabase.from("mood_checkins").select("mood");
     let avgMood = 0;
     if (moodData && moodData.length > 0) {
       const totalMood = moodData.reduce((sum, c) => sum + (moodToNumber[c.mood] || 3), 0);
@@ -132,37 +130,38 @@ const DashboardPage = () => {
       totalStudents: uniqueStudents.size,
       activeWeek: activeStudents.size,
       avgMood: avgMood,
-      openFlags: flagsData?.length || 0
+      openFlags: flagsData?.length || 0,
     });
     setIsLoading(false);
   };
 
   // Filter alerts based on selected filters
-  const filteredAlerts = alerts.filter(alert => {
+  const filteredAlerts = alerts.filter((alert) => {
     const matchesSeverity = severityFilter === "all" || alert.severity === severityFilter;
     const matchesSource = sourceFilter === "all" || alert.channel === sourceFilter;
     return matchesSeverity && matchesSource;
   });
 
-  const criticalCount = alerts.filter(a => a.severity === "critical").length;
+  const criticalCount = alerts.filter((a) => a.severity === "critical").length;
 
   const handleStatusChange = async (alertId: string, newStatus: string) => {
-    const {
-      error
-    } = await supabase.from("risk_flags").update({
-      status: newStatus,
-      resolved_at: newStatus === "resolved" ? new Date().toISOString() : null
-    }).eq("id", alertId);
+    const { error } = await supabase
+      .from("risk_flags")
+      .update({
+        status: newStatus,
+        resolved_at: newStatus === "resolved" ? new Date().toISOString() : null,
+      })
+      .eq("id", alertId);
     if (error) {
       toast({
         title: "Error",
         description: "Failed to update alert status.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } else {
       toast({
         title: "Status Updated",
-        description: `Alert marked as ${newStatus === "resolved" ? "resolved" : "pending"}.`
+        description: `Alert marked as ${newStatus === "resolved" ? "resolved" : "pending"}.`,
       });
       fetchDashboardData();
     }
@@ -173,7 +172,7 @@ const DashboardPage = () => {
     bad: "Bad",
     okay: "Okay",
     good: "Good",
-    great: "Great"
+    great: "Great",
   };
 
   const formatAlertForCard = (flag: RiskFlag) => ({
@@ -186,7 +185,7 @@ const DashboardPage = () => {
     mood: flag.mood ? moodLabels[flag.mood] || flag.mood : undefined,
     timestamp: format(new Date(flag.created_at), "MMM d, yyyy, h:mm a"),
     status: flag.status,
-    userId: flag.user_id
+    userId: flag.user_id,
   });
 
   const clearFilters = () => {
@@ -196,7 +195,8 @@ const DashboardPage = () => {
 
   const hasActiveFilters = severityFilter !== "all" || sourceFilter !== "all";
 
-  return <div className="min-h-screen bg-secondary/50">
+  return (
+    <div className="min-h-screen bg-secondary/50">
       <Header />
 
       <main className="container max-w-6xl mx-auto px-4 py-8">
@@ -205,29 +205,21 @@ const DashboardPage = () => {
           <div>
             <div className="flex items-center gap-3 mb-1">
               <Shield className="w-8 h-8 text-destructive" />
-              <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
-                Counsellor Dashboard
-              </h1>
+              <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">Counsellor Dashboard</h1>
             </div>
-            
           </div>
 
           {/* Pending alerts badge */}
-          
         </div>
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-slide-up">
           <div className="card-elevated p-5">
-            <p className="text-3xl font-bold text-foreground mb-1">
-              {isLoading ? "..." : stats.totalStudents}
-            </p>
+            <p className="text-3xl font-bold text-foreground mb-1">{isLoading ? "..." : stats.totalStudents}</p>
             <p className="text-sm text-muted-foreground">Total Students</p>
           </div>
           <div className="card-elevated p-5">
-            <p className="text-3xl font-bold text-foreground mb-1">
-              {isLoading ? "..." : stats.activeWeek}
-            </p>
+            <p className="text-3xl font-bold text-foreground mb-1">{isLoading ? "..." : stats.activeWeek}</p>
             <p className="text-sm text-muted-foreground">Active (7 days)</p>
           </div>
           <div className="card-elevated p-5">
@@ -237,15 +229,14 @@ const DashboardPage = () => {
             <p className="text-sm text-muted-foreground">Avg Mood</p>
           </div>
           <div className="card-elevated p-5">
-            <p className="text-3xl font-bold text-destructive mb-1">
-              {isLoading ? "..." : stats.openFlags}
-            </p>
+            <p className="text-3xl font-bold text-destructive mb-1">{isLoading ? "..." : stats.openFlags}</p>
             <p className="text-sm text-muted-foreground">Risk Alerts</p>
           </div>
         </div>
 
         {/* Critical alert banner */}
-        {criticalCount > 0 && <div className="bg-destructive rounded-xl p-4 mb-6 flex items-start gap-3 animate-fade-in">
+        {criticalCount > 0 && (
+          <div className="bg-destructive rounded-xl p-4 mb-6 flex items-start gap-3 animate-fade-in">
             <AlertTriangle className="w-6 h-6 text-destructive-foreground shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-destructive-foreground">
@@ -256,7 +247,8 @@ const DashboardPage = () => {
                 Please review and acknowledge these alerts as soon as possible.
               </p>
             </div>
-          </div>}
+          </div>
+        )}
 
         {/* Risk Flags section */}
         <section className="card-elevated p-6">
@@ -267,14 +259,14 @@ const DashboardPage = () => {
                 {filteredAlerts.length > 0 ? `Risk Alerts (${filteredAlerts.length})` : "Risk Alerts"}
               </h2>
             </div>
-            
+
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Filters:</span>
               </div>
-              
+
               <Select value={severityFilter} onValueChange={setSeverityFilter}>
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Severity" />
@@ -283,22 +275,20 @@ const DashboardPage = () => {
                   <SelectItem value="all">All Severity</SelectItem>
                   <SelectItem value="critical">Critical</SelectItem>
                   <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={sourceFilter} onValueChange={setSourceFilter}>
                 <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="Source" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Sources</SelectItem>
-                  <SelectItem value="chat">Counsellor Chat</SelectItem>
+                  <SelectItem value="chat">Chat</SelectItem>
                   <SelectItem value="mood">Mood Check-in</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               {hasActiveFilters && (
                 <Button variant="ghost" size="sm" onClick={clearFilters}>
                   Clear
@@ -307,17 +297,26 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {isLoading ? <div className="py-12 text-center">
+          {isLoading ? (
+            <div className="py-12 text-center">
               <p className="text-muted-foreground animate-pulse">Loading...</p>
-            </div> : filteredAlerts.length > 0 ? <div className="space-y-4">
-              {filteredAlerts.map(alert => <AlertCard key={alert.id} alert={formatAlertForCard(alert)} onStatusChange={handleStatusChange} />)}
-            </div> : <div className="py-12 text-center">
+            </div>
+          ) : filteredAlerts.length > 0 ? (
+            <div className="space-y-4">
+              {filteredAlerts.map((alert) => (
+                <AlertCard key={alert.id} alert={formatAlertForCard(alert)} onStatusChange={handleStatusChange} />
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center">
               <p className="text-muted-foreground">
                 {hasActiveFilters ? "No alerts match the selected filters" : "No open risk flags"}
               </p>
-            </div>}
+            </div>
+          )}
         </section>
       </main>
-    </div>;
+    </div>
+  );
 };
 export default DashboardPage;
