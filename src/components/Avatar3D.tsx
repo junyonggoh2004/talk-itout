@@ -224,7 +224,7 @@ const Avatar3D = ({ emotion, audioVolume, isSpeaking, currentText }: Avatar3DPro
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden bg-gradient-to-b from-primary/5 to-secondary/20">
       <Canvas
-        camera={{ position: [0, 0.2, 4], fov: 40 }}
+        camera={{ position: [0, 0.3, 2.5], fov: 35 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
