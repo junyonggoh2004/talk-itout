@@ -24,34 +24,31 @@ interface AlertCardProps {
   onStatusChange: (id: string, status: string) => void;
 }
 
-const AlertCard = ({
-  alert,
-  onStatusChange
-}: AlertCardProps) => {
+const AlertCard = ({ alert, onStatusChange }: AlertCardProps) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  
+
   const severityStyles: Record<string, string> = {
     critical: "bg-destructive text-destructive-foreground",
     high: "bg-orange-500 text-white",
     medium: "bg-yellow-500 text-white",
-    low: "bg-blue-500 text-white"
+    low: "bg-blue-500 text-white",
   };
-  
+
   const isPending = alert.status === "open";
-  
+
   // Map channel to display source
   const getSourceLabel = (channel: string) => {
     switch (channel) {
       case "chat":
-        return "Counsellor Chat";
+        return "Chat";
       case "mood":
         return "Mood Check-in";
       default:
         return channel;
     }
   };
-  
+
   const getSourceIcon = (channel: string) => {
     switch (channel) {
       case "chat":
@@ -62,9 +59,18 @@ const AlertCard = ({
         return null;
     }
   };
-  
-  return <>
-      <div className={cn("bg-card rounded-xl border-l-4 p-4 shadow-card animate-fade-in", alert.severity === "critical" && "border-l-destructive", alert.severity === "high" && "border-l-orange-500", alert.severity === "medium" && "border-l-yellow-500", alert.severity === "low" && "border-l-blue-500")}>
+
+  return (
+    <>
+      <div
+        className={cn(
+          "bg-card rounded-xl border-l-4 p-4 shadow-card animate-fade-in",
+          alert.severity === "critical" && "border-l-destructive",
+          alert.severity === "high" && "border-l-orange-500",
+          alert.severity === "medium" && "border-l-yellow-500",
+          alert.severity === "low" && "border-l-blue-500",
+        )}
+      >
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
             {/* Tags */}
@@ -83,9 +89,7 @@ const AlertCard = ({
 
             {/* Message snippet */}
             <div className="bg-muted/50 rounded-lg p-3">
-              <p className="text-sm text-foreground/80 italic">
-                "{alert.message}"
-              </p>
+              <p className="text-sm text-foreground/80 italic">"{alert.message}"</p>
             </div>
 
             {/* Meta */}
@@ -94,10 +98,12 @@ const AlertCard = ({
                 <User className="w-3 h-3" />
                 {alert.userAlias}
               </span>
-              {alert.mood && <span className="flex items-center gap-1">
+              {alert.mood && (
+                <span className="flex items-center gap-1">
                   <Heart className="w-3 h-3" />
                   Mood: {alert.mood}
-                </span>}
+                </span>
+              )}
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {alert.timestamp}
@@ -110,17 +116,30 @@ const AlertCard = ({
             <Button onClick={() => setDetailsOpen(true)} variant="outline" className="w-full">
               Details
             </Button>
-            {isPending && <Button onClick={() => setChatOpen(true)} className="w-full">
+            {isPending && (
+              <Button onClick={() => setChatOpen(true)} className="w-full">
                 Check In
-              </Button>}
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
-      <AlertDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} alert={alert} onStatusChange={onStatusChange} />
+      <AlertDetailsDialog
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+        alert={alert}
+        onStatusChange={onStatusChange}
+      />
 
-      <ApproachChatDialog open={chatOpen} onOpenChange={setChatOpen} studentName={alert.userAlias} studentId={alert.userId} />
-    </>;
+      <ApproachChatDialog
+        open={chatOpen}
+        onOpenChange={setChatOpen}
+        studentName={alert.userAlias}
+        studentId={alert.userId}
+      />
+    </>
+  );
 };
 export default AlertCard;
 export type { Alert };
