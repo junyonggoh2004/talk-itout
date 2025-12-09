@@ -217,14 +217,14 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen lg:h-screen bg-background flex flex-col lg:overflow-hidden">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <Header />
       
-      <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 md:py-6 flex flex-col lg:min-h-0">
+      <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 md:py-6 flex flex-col min-h-0">
         {/* Main content grid */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:min-h-0">
-          {/* Avatar section */}
-          <div className="lg:w-80 shrink-0">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+          {/* Avatar section - hidden on mobile/tablet */}
+          <div className="hidden lg:block lg:w-80 shrink-0">
             <div className="card-elevated p-4 h-full">
               <AvatarContainer
                 emotion={emotion}
@@ -242,7 +242,7 @@ const ChatPage = () => {
           </div>
 
           {/* Chat container */}
-          <div className="flex-1 card-elevated flex flex-col overflow-hidden lg:min-h-0 h-[60vh] lg:h-auto">
+          <div className="flex-1 card-elevated flex flex-col overflow-hidden min-h-0">
             {/* Chat header */}
             <div className="p-4 md:p-6 border-b border-border/50 shrink-0">
               <div className="flex items-center justify-between">
