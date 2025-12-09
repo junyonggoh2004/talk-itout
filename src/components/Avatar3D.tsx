@@ -101,7 +101,7 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
     if (isSpeaking) {
       // Expressive right arm gesture while talking
       if (bones.rightArm && initialRotationsRef.current.rightArm) {
-        const gestureAmount = Math.sin(time * 2.5) * 0.5;
+        const gestureAmount = Math.sin(time * 2.5) * 0.08;
         bones.rightArm.rotation.z = THREE.MathUtils.lerp(
           bones.rightArm.rotation.z,
           initialRotationsRef.current.rightArm.z + gestureAmount,
@@ -109,13 +109,13 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
         );
         bones.rightArm.rotation.x = THREE.MathUtils.lerp(
           bones.rightArm.rotation.x,
-          initialRotationsRef.current.rightArm.x - 0.7 + Math.sin(time * 1.8) * 0.35,
+          initialRotationsRef.current.rightArm.x + Math.sin(time * 1.8) * 0.1,
           lerpSpeed
         );
       }
       
       if (bones.rightForeArm && initialRotationsRef.current.rightForeArm) {
-        const forearmGesture = Math.sin(time * 3) * 0.55;
+        const forearmGesture = Math.sin(time * 3) * 0.15;
         bones.rightForeArm.rotation.y = THREE.MathUtils.lerp(
           bones.rightForeArm.rotation.y,
           initialRotationsRef.current.rightForeArm.y + forearmGesture,
@@ -123,13 +123,13 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
         );
         bones.rightForeArm.rotation.z = THREE.MathUtils.lerp(
           bones.rightForeArm.rotation.z,
-          initialRotationsRef.current.rightForeArm.z + Math.sin(time * 2.2) * 0.3,
+          initialRotationsRef.current.rightForeArm.z + Math.sin(time * 2.2) * 0.1,
           lerpSpeed
         );
       }
       
       if (bones.rightHand && initialRotationsRef.current.rightHand) {
-        const handGesture = Math.sin(time * 3.5) * 0.6;
+        const handGesture = Math.sin(time * 3.5) * 0.2;
         bones.rightHand.rotation.z = THREE.MathUtils.lerp(
           bones.rightHand.rotation.z,
           initialRotationsRef.current.rightHand.z + handGesture,
@@ -137,14 +137,14 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
         );
         bones.rightHand.rotation.x = THREE.MathUtils.lerp(
           bones.rightHand.rotation.x,
-          initialRotationsRef.current.rightHand.x + Math.sin(time * 2.8) * 0.4,
+          initialRotationsRef.current.rightHand.x + Math.sin(time * 2.8) * 0.15,
           lerpSpeed
         );
       }
       
       // More expressive left arm movement
       if (bones.leftArm && initialRotationsRef.current.leftArm) {
-        const leftGesture = Math.sin(time * 2 + 1.5) * 0.3;
+        const leftGesture = Math.sin(time * 2 + 1.5) * 0.05;
         bones.leftArm.rotation.z = THREE.MathUtils.lerp(
           bones.leftArm.rotation.z,
           initialRotationsRef.current.leftArm.z + leftGesture,
@@ -152,7 +152,7 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
         );
         bones.leftArm.rotation.x = THREE.MathUtils.lerp(
           bones.leftArm.rotation.x,
-          initialRotationsRef.current.leftArm.x - 0.4 + Math.sin(time * 1.6 + 0.5) * 0.25,
+          initialRotationsRef.current.leftArm.x + Math.sin(time * 1.6 + 0.5) * 0.06,
           lerpSpeed
         );
       }
@@ -160,7 +160,7 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
       if (bones.leftForeArm && initialRotationsRef.current.leftForeArm) {
         bones.leftForeArm.rotation.y = THREE.MathUtils.lerp(
           bones.leftForeArm.rotation.y,
-          initialRotationsRef.current.leftForeArm.y + Math.sin(time * 2.3 + 1) * 0.25,
+          initialRotationsRef.current.leftForeArm.y + Math.sin(time * 2.3 + 1) * 0.08,
           lerpSpeed
         );
       }
