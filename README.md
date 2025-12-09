@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: [Website](https://talk-itout.lovable.app/)
+**URL**: https://talk-itout.lovable.app/
 
 ## How can I edit this code?
 
