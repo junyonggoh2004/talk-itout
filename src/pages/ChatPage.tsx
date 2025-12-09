@@ -34,7 +34,7 @@ const quickMoods = [{
 }];
 const initialMessages: Message[] = [{
   id: "1",
-  text: "Hi there! I'm your friendly AI companion. I'm here to listen and support you. How are you feeling today?",
+  text: "Hi there, I'm Lumi. This is a safe, private space for you to share whatever is on your mind. Everything you share with me is confidential, unless you or someone else is in immediate danger. How can I support you today?",
   sender: "assistant",
   timestamp: "Just now"
 }];
