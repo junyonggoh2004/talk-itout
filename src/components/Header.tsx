@@ -1,7 +1,8 @@
-import { Heart, MessageCircle, Wind, LayoutDashboard, User, LogOut } from "lucide-react";
+import { MessageCircle, Wind, LayoutDashboard, User, LogOut, Heart } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.png";
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -43,9 +44,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-card rounded-lg flex items-center justify-center shadow-sm">
-            <Heart className="w-6 h-6 text-destructive fill-destructive" />
-          </div>
+          <img src={logo} alt="Talk.ItOut Logo" className="w-10 h-10" />
           <div className="hidden sm:block">
             <h1 className="text-primary-foreground font-display font-bold text-lg leading-tight">
               Talk.ItOut
