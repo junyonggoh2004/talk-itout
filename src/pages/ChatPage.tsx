@@ -235,18 +235,14 @@ const ChatPage = () => {
             <div className="p-4 border-b border-border/50 shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                    TALK
-                  </p>
+                  
                   <div className="flex items-center gap-2">
                     <MessageCircle className="w-5 h-5 text-primary" />
                     <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
                       Let's Talk
                     </h1>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    I'm here to listen and support you.
-                  </p>
+                  
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="secondary" size="sm" onClick={toggleVoice} className="shrink-0" title={voiceEnabled ? "Disable voice" : "Enable voice"}>
@@ -261,11 +257,7 @@ const ChatPage = () => {
 
               {/* Quick mood selector */}
               {!selectedQuickMood && !quickMoodDismissed && <div className="mt-4 p-4 bg-secondary/50 rounded-xl animate-fade-in relative">
-                  <button 
-                    onClick={() => setQuickMoodDismissed(true)} 
-                    className="absolute top-2 right-2 p-1 rounded-full hover:bg-secondary/80 transition-colors text-muted-foreground hover:text-foreground"
-                    aria-label="Dismiss"
-                  >
+                  <button onClick={() => setQuickMoodDismissed(true)} className="absolute top-2 right-2 p-1 rounded-full hover:bg-secondary/80 transition-colors text-muted-foreground hover:text-foreground" aria-label="Dismiss">
                     <X className="w-4 h-4" />
                   </button>
                   <p className="text-sm font-medium text-foreground mb-3">
