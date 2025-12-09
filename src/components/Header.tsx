@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, LayoutDashboard, User, LogOut } from "lucide-react";
+import { Heart, MessageCircle, Wind, LayoutDashboard, User, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,10 @@ const Header = () => {
     to: "/chat",
     label: "Chat",
     icon: MessageCircle
+  }, {
+    to: "/calm",
+    label: "Calm",
+    icon: Wind
   }];
   const counsellorNavItems = [{
     to: "/dashboard",
