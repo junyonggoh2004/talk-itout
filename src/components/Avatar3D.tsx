@@ -20,7 +20,21 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
   const groupRef = useRef<THREE.Group>(null);
   const targetMorphsRef = useRef<Record<string, number>>({});
   
-  // Find ALL meshes with morph targets
+  // Bone references for hand animation
+  const bonesRef = useRef<{
+    rightArm?: THREE.Bone;
+    rightForeArm?: THREE.Bone;
+    rightHand?: THREE.Bone;
+    leftArm?: THREE.Bone;
+    leftForeArm?: THREE.Bone;
+    leftHand?: THREE.Bone;
+    spine?: THREE.Bone;
+  }>({});
+  
+  // Store initial bone rotations
+  const initialRotationsRef = useRef<Record<string, THREE.Euler>>({});
+  
+  // Find ALL meshes with morph targets and bones
   useEffect(() => {
     const meshes: THREE.SkinnedMesh[] = [];
     scene.traverse((child) => {
@@ -30,9 +44,38 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
           meshes.push(mesh);
         }
       }
+      
+      // Find bones by name
+      if ((child as THREE.Bone).isBone) {
+        const bone = child as THREE.Bone;
+        const name = bone.name.toLowerCase();
+        
+        if (name.includes('rightarm') && !name.includes('fore')) {
+          bonesRef.current.rightArm = bone;
+          initialRotationsRef.current.rightArm = bone.rotation.clone();
+        } else if (name.includes('rightforearm')) {
+          bonesRef.current.rightForeArm = bone;
+          initialRotationsRef.current.rightForeArm = bone.rotation.clone();
+        } else if (name.includes('righthand')) {
+          bonesRef.current.rightHand = bone;
+          initialRotationsRef.current.rightHand = bone.rotation.clone();
+        } else if (name.includes('leftarm') && !name.includes('fore')) {
+          bonesRef.current.leftArm = bone;
+          initialRotationsRef.current.leftArm = bone.rotation.clone();
+        } else if (name.includes('leftforearm')) {
+          bonesRef.current.leftForeArm = bone;
+          initialRotationsRef.current.leftForeArm = bone.rotation.clone();
+        } else if (name.includes('lefthand')) {
+          bonesRef.current.leftHand = bone;
+          initialRotationsRef.current.leftHand = bone.rotation.clone();
+        } else if (name === 'spine' || name.includes('spine1')) {
+          bonesRef.current.spine = bone;
+          initialRotationsRef.current.spine = bone.rotation.clone();
+        }
+      }
     });
     meshesRef.current = meshes;
-    console.log(`Found ${meshes.length} meshes with morph targets`);
+    console.log('Found bones:', Object.keys(bonesRef.current).filter(k => bonesRef.current[k as keyof typeof bonesRef.current]));
   }, [scene]);
 
   // Update emotion blend shapes
@@ -43,11 +86,76 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
 
   // Animation loop
   useFrame((state, delta) => {
-    // Subtle idle animation
+    const time = state.clock.elapsedTime;
+    
+    // Subtle idle animation for the whole model
     if (groupRef.current) {
-      const time = state.clock.elapsedTime;
       groupRef.current.rotation.y = Math.sin(time * 0.3) * 0.08;
       groupRef.current.position.y = Math.sin(time * 0.5) * 0.02 - 1.5;
+    }
+
+    // Hand/arm gestures while speaking
+    const bones = bonesRef.current;
+    const lerpSpeed = delta * 3;
+    
+    if (isSpeaking) {
+      // Subtle right arm gesture while talking
+      if (bones.rightArm && initialRotationsRef.current.rightArm) {
+        const gestureAmount = Math.sin(time * 2) * 0.08;
+        bones.rightArm.rotation.z = THREE.MathUtils.lerp(
+          bones.rightArm.rotation.z,
+          initialRotationsRef.current.rightArm.z + gestureAmount,
+          lerpSpeed
+        );
+        bones.rightArm.rotation.x = THREE.MathUtils.lerp(
+          bones.rightArm.rotation.x,
+          initialRotationsRef.current.rightArm.x - 0.15 + Math.sin(time * 1.5) * 0.05,
+          lerpSpeed
+        );
+      }
+      
+      if (bones.rightForeArm && initialRotationsRef.current.rightForeArm) {
+        const forearmGesture = Math.sin(time * 2.5) * 0.1;
+        bones.rightForeArm.rotation.y = THREE.MathUtils.lerp(
+          bones.rightForeArm.rotation.y,
+          initialRotationsRef.current.rightForeArm.y + forearmGesture,
+          lerpSpeed
+        );
+      }
+      
+      if (bones.rightHand && initialRotationsRef.current.rightHand) {
+        const handGesture = Math.sin(time * 3) * 0.15;
+        bones.rightHand.rotation.z = THREE.MathUtils.lerp(
+          bones.rightHand.rotation.z,
+          initialRotationsRef.current.rightHand.z + handGesture,
+          lerpSpeed
+        );
+      }
+      
+      // Subtle left arm movement (less than right)
+      if (bones.leftArm && initialRotationsRef.current.leftArm) {
+        const leftGesture = Math.sin(time * 1.8 + 1) * 0.04;
+        bones.leftArm.rotation.z = THREE.MathUtils.lerp(
+          bones.leftArm.rotation.z,
+          initialRotationsRef.current.leftArm.z + leftGesture,
+          lerpSpeed
+        );
+      }
+    } else {
+      // Return to idle pose when not speaking
+      if (bones.rightArm && initialRotationsRef.current.rightArm) {
+        bones.rightArm.rotation.x = THREE.MathUtils.lerp(bones.rightArm.rotation.x, initialRotationsRef.current.rightArm.x, lerpSpeed);
+        bones.rightArm.rotation.z = THREE.MathUtils.lerp(bones.rightArm.rotation.z, initialRotationsRef.current.rightArm.z, lerpSpeed);
+      }
+      if (bones.rightForeArm && initialRotationsRef.current.rightForeArm) {
+        bones.rightForeArm.rotation.y = THREE.MathUtils.lerp(bones.rightForeArm.rotation.y, initialRotationsRef.current.rightForeArm.y, lerpSpeed);
+      }
+      if (bones.rightHand && initialRotationsRef.current.rightHand) {
+        bones.rightHand.rotation.z = THREE.MathUtils.lerp(bones.rightHand.rotation.z, initialRotationsRef.current.rightHand.z, lerpSpeed);
+      }
+      if (bones.leftArm && initialRotationsRef.current.leftArm) {
+        bones.leftArm.rotation.z = THREE.MathUtils.lerp(bones.leftArm.rotation.z, initialRotationsRef.current.leftArm.z, lerpSpeed);
+      }
     }
 
     // Apply morph targets to ALL meshes
@@ -56,12 +164,12 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
 
       const dict = mesh.morphTargetDictionary;
       const influences = mesh.morphTargetInfluences;
-      const lerpSpeed = delta * 12;
+      const morphLerpSpeed = delta * 12;
       
       // Reset non-active morph targets gradually
       for (let i = 0; i < influences.length; i++) {
         if (influences[i] > 0.01) {
-          influences[i] = THREE.MathUtils.lerp(influences[i], 0, lerpSpeed * 0.5);
+          influences[i] = THREE.MathUtils.lerp(influences[i], 0, morphLerpSpeed * 0.5);
         }
       }
       
@@ -71,7 +179,7 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
           influences[dict[shapeName]] = THREE.MathUtils.lerp(
             influences[dict[shapeName]],
             targetValue,
-            lerpSpeed
+            morphLerpSpeed
           );
         }
       });
@@ -80,27 +188,26 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
       if (isSpeaking && audioVolume > 0.05) {
         // Apply current viseme with reduced intensity
         if (dict[currentViseme] !== undefined) {
-          const visemeIntensity = Math.min(audioVolume * 0.6, 0.5); // Max 50% intensity
+          const visemeIntensity = Math.min(audioVolume * 0.6, 0.5);
           influences[dict[currentViseme]] = THREE.MathUtils.lerp(
             influences[dict[currentViseme]],
             visemeIntensity,
-            lerpSpeed
+            morphLerpSpeed
           );
         }
         
         // Subtle jaw movement
         if (dict['jawOpen'] !== undefined) {
-          const jawIntensity = Math.min(audioVolume * 0.25, 0.3); // Max 30% jaw open
+          const jawIntensity = Math.min(audioVolume * 0.25, 0.3);
           influences[dict['jawOpen']] = THREE.MathUtils.lerp(
             influences[dict['jawOpen']],
             jawIntensity,
-            lerpSpeed
+            morphLerpSpeed
           );
         }
       }
       
       // Blinking animation
-      const time = Date.now() * 0.001;
       const shouldBlink = Math.sin(time * 0.5) > 0.97;
       
       if (shouldBlink) {
@@ -136,11 +243,6 @@ interface Avatar3DProps {
 const Avatar3D = ({ emotion, audioVolume, isSpeaking, currentText }: Avatar3DProps) => {
   const [currentViseme, setCurrentViseme] = useState<VisemeType>('viseme_sil');
   const visemeIndexRef = useRef(0);
-  
-  // Debug logging
-  useEffect(() => {
-    console.log('Avatar3D state:', { isSpeaking, audioVolume: audioVolume.toFixed(2), currentViseme });
-  }, [isSpeaking, audioVolume, currentViseme]);
   
   // Animate through visemes based on text while speaking
   useEffect(() => {
@@ -178,7 +280,7 @@ const Avatar3D = ({ emotion, audioVolume, isSpeaking, currentText }: Avatar3DPro
       const viseme = charToVisemeMap[char] || 'viseme_aa';
       setCurrentViseme(viseme);
       visemeIndexRef.current++;
-    }, 70); // Slightly faster for more dynamic movement
+    }, 70);
     
     return () => clearInterval(interval);
   }, [isSpeaking, currentText]);
