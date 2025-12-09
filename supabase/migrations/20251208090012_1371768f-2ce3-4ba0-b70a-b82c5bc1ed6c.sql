@@ -31,13 +31,13 @@ BEGIN
   -- Flag very_bad mood as high risk
   IF detected_severity IS NULL AND NEW.mood = 'very_bad' THEN
     detected_severity := 'high';
-    detected_risk_type := 'Very Low Mood';
+    detected_risk_type := 'Very Bad Mood';
   END IF;
   
   -- Flag bad mood as medium risk
   IF detected_severity IS NULL AND NEW.mood = 'bad' THEN
     detected_severity := 'medium';
-    detected_risk_type := 'Low Mood';
+    detected_risk_type := 'Bad Mood';
   END IF;
   
   -- Insert risk flag if detected
