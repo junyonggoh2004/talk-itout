@@ -12,6 +12,7 @@ import { useAudioAnalyzer } from "@/hooks/useAudioAnalyzer";
 import { useEmotionDetection } from "@/hooks/useEmotionDetection";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 interface Message {
   id: string;
   text: string;
@@ -49,6 +50,7 @@ const emotionToFeelingPhrase: Record<string, string> = {
 };
 
 const ChatPage = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -129,7 +131,31 @@ const ChatPage = () => {
       setIsLoadingSuggestions(false);
     }
   };
-  const getAIResponse = async (allMessages: Message[]) => {
+  // Create risk flag for logged-in users
+  const createRiskFlag = async (messageText: string, riskDetection: { severity: string; riskType: string }) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase.from("risk_flags").insert({
+        user_id: user.id,
+        severity: riskDetection.severity,
+        risk_type: riskDetection.riskType,
+        channel: "chat",
+        message: messageText,
+        status: "open"
+      });
+      
+      if (error) {
+        console.error("Failed to create risk flag:", error);
+      } else {
+        console.log("Risk flag created for chat message");
+      }
+    } catch (err) {
+      console.error("Error creating risk flag:", err);
+    }
+  };
+
+  const getAIResponse = async (allMessages: Message[], userMessageText?: string) => {
     setIsTyping(true);
     setSuggestedReplies([]);
     try {
@@ -151,6 +177,12 @@ const ChatPage = () => {
         setIsTyping(false);
         return;
       }
+      
+      // Handle risk detection for logged-in users
+      if (data?.riskDetection && user && userMessageText) {
+        createRiskFlag(userMessageText, data.riskDetection);
+      }
+      
       const responseText = data?.message || "I'm here to listen. Could you tell me more?";
       const newMessages = [...allMessages, {
         id: Date.now().toString(),
@@ -187,7 +219,7 @@ const ChatPage = () => {
     setInput("");
     setLastUserMessage(messageText);
     setSuggestedReplies([]);
-    getAIResponse(newMessages);
+    getAIResponse(newMessages, messageText);
   };
   const handleSuggestionClick = (suggestion: string) => {
     handleSend(suggestion);
@@ -213,16 +245,18 @@ const ChatPage = () => {
   };
   const handleQuickMood = (mood: string) => {
     setSelectedQuickMood(mood);
+    const moodText = `I'm feeling ${mood.toLowerCase()} today.`;
     const moodMessage: Message = {
       id: Date.now().toString(),
-      text: `I'm feeling ${mood.toLowerCase()} today.`,
+      text: moodText,
       sender: "user",
       timestamp: formatTime(),
       isNew: true
     };
     const newMessages = [...messages, moodMessage];
     setMessages(newMessages);
-    getAIResponse(newMessages);
+    setLastUserMessage(moodText);
+    getAIResponse(newMessages, moodText);
   };
   return <div className="min-h-screen lg:h-screen bg-background flex flex-col lg:overflow-hidden">
       <Header />

@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Clock, User, Heart } from "lucide-react";
+import { Clock, User, Heart, MessageSquare, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import AlertDetailsDialog from "./AlertDetailsDialog";
 import ApproachChatDialog from "./ApproachChatDialog";
+
 interface Alert {
   id: string;
   severity: "critical" | "high" | "medium" | "low";
@@ -17,31 +18,67 @@ interface Alert {
   status: string;
   userId: string;
 }
+
 interface AlertCardProps {
   alert: Alert;
   onStatusChange: (id: string, status: string) => void;
 }
+
 const AlertCard = ({
   alert,
   onStatusChange
 }: AlertCardProps) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  
   const severityStyles: Record<string, string> = {
     critical: "bg-destructive text-destructive-foreground",
     high: "bg-orange-500 text-white",
     medium: "bg-yellow-500 text-white",
     low: "bg-blue-500 text-white"
   };
+  
   const isPending = alert.status === "open";
+  
+  // Map channel to display source
+  const getSourceLabel = (channel: string) => {
+    switch (channel) {
+      case "chat":
+        return "Counsellor Chat";
+      case "mood":
+        return "Mood Check-in";
+      default:
+        return channel;
+    }
+  };
+  
+  const getSourceIcon = (channel: string) => {
+    switch (channel) {
+      case "chat":
+        return <MessageSquare className="w-3 h-3" />;
+      case "mood":
+        return <BarChart3 className="w-3 h-3" />;
+      default:
+        return null;
+    }
+  };
+  
   return <>
       <div className={cn("bg-card rounded-xl border-l-4 p-4 shadow-card animate-fade-in", alert.severity === "critical" && "border-l-destructive", alert.severity === "high" && "border-l-orange-500", alert.severity === "medium" && "border-l-yellow-500", alert.severity === "low" && "border-l-blue-500")}>
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
             {/* Tags */}
             <div className="flex flex-wrap items-center gap-2">
-              
-              
+              <Badge className={cn("text-xs", severityStyles[alert.severity])}>
+                {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
+              </Badge>
+              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                {getSourceIcon(alert.channel)}
+                {getSourceLabel(alert.channel)}
+              </Badge>
+              <Badge variant="secondary" className="text-xs">
+                {alert.riskType}
+              </Badge>
             </div>
 
             {/* Message snippet */}
