@@ -242,7 +242,7 @@ const ChatPage = () => {
           </div>
 
           {/* Chat container */}
-          <div className="flex-1 card-elevated flex flex-col overflow-hidden lg:min-h-0 min-h-[400px]">
+          <div className="flex-1 card-elevated flex flex-col overflow-hidden lg:min-h-0 h-[60vh] lg:h-auto">
             {/* Chat header */}
             <div className="p-4 md:p-6 border-b border-border/50 shrink-0">
               <div className="flex items-center justify-between">
