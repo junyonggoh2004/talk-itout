@@ -1,24 +1,10 @@
 import { AlertTriangle } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-
 interface AlertDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -36,35 +22,29 @@ interface AlertDetailsDialogProps {
   };
   onStatusChange: (id: string, status: string) => void;
 }
-
 const AlertDetailsDialog = ({
   open,
   onOpenChange,
   alert,
-  onStatusChange,
+  onStatusChange
 }: AlertDetailsDialogProps) => {
   const [selectedStatus, setSelectedStatus] = useState(alert.status);
-
   const severityStyles: Record<string, string> = {
     critical: "bg-destructive text-destructive-foreground",
     high: "bg-orange-500 text-white",
     medium: "bg-yellow-500 text-white",
-    low: "bg-blue-500 text-white",
+    low: "bg-blue-500 text-white"
   };
-
   const statusStyles: Record<string, string> = {
     open: "bg-yellow-100 text-yellow-800",
     pending: "bg-yellow-100 text-yellow-800",
-    resolved: "bg-green-100 text-green-800",
+    resolved: "bg-green-100 text-green-800"
   };
-
   const handleSave = () => {
     onStatusChange(alert.id, selectedStatus);
     onOpenChange(false);
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+  return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -79,13 +59,9 @@ const AlertDetailsDialog = ({
         <div className="space-y-4">
           {/* Tags */}
           <div className="flex flex-wrap items-center gap-2">
-            <Badge className={cn("uppercase text-xs font-bold", severityStyles[alert.severity])}>
-              {alert.severity}
-            </Badge>
-            <Badge variant="outline">{alert.riskType}</Badge>
-            <Badge className={cn("text-xs", statusStyles[alert.status] || statusStyles.pending)}>
-              {alert.status === "open" ? "Pending" : alert.status}
-            </Badge>
+            
+            
+            
           </div>
 
           {/* User Message */}
@@ -108,12 +84,10 @@ const AlertDetailsDialog = ({
               <p className="text-muted-foreground">Created</p>
               <p className="font-medium text-foreground">{alert.timestamp}</p>
             </div>
-            {alert.mood && (
-              <div>
+            {alert.mood && <div>
                 <p className="text-muted-foreground">Mood</p>
                 <p className="font-medium text-foreground">{alert.mood}</p>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Update Status */}
@@ -140,8 +114,6 @@ const AlertDetailsDialog = ({
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default AlertDetailsDialog;
