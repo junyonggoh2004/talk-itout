@@ -217,12 +217,12 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <Header />
       
-      <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 md:py-6 flex flex-col">
+      <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 md:py-6 flex flex-col min-h-0">
         {/* Main content grid */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-4">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
           {/* Avatar section */}
           <div className="lg:w-80 shrink-0">
             <div className="card-elevated p-4 h-full">
@@ -242,9 +242,9 @@ const ChatPage = () => {
           </div>
 
           {/* Chat container */}
-          <div className="flex-1 card-elevated flex flex-col overflow-hidden">
+          <div className="flex-1 card-elevated flex flex-col overflow-hidden min-h-0">
             {/* Chat header */}
-            <div className="p-4 md:p-6 border-b border-border/50">
+            <div className="p-4 md:p-6 border-b border-border/50 shrink-0">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
@@ -316,7 +316,7 @@ const ChatPage = () => {
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 min-h-0">
               {messages.map((message) => (
                 <ChatBubble
                   key={message.id}
@@ -343,7 +343,7 @@ const ChatPage = () => {
             </div>
 
             {/* Input area */}
-            <div className="p-4 border-t border-border/50 bg-card">
+            <div className="p-4 border-t border-border/50 bg-card shrink-0">
               {/* Suggested replies */}
               {suggestedReplies.length > 0 && !isTyping && (
                 <div className="flex flex-wrap gap-2 mb-3 animate-fade-in">
@@ -423,7 +423,7 @@ const ChatPage = () => {
         </div>
 
         {/* Disclaimer */}
-        <p className="text-center text-xs text-muted-foreground mt-4 max-w-md mx-auto">
+        <p className="text-center text-xs text-muted-foreground mt-4 max-w-md mx-auto shrink-0">
           This AI is not a substitute for professional help. If you're struggling, please reach out to a trusted adult or counselor.
         </p>
       </main>
