@@ -6,111 +6,111 @@
 
 @layer base {
   :root {
-    /* Warm beige/tan palette for mental wellness */
-    --background: 35 30% 82%;
-    --foreground: 25 40% 20%;
+    /* Clean white/blue palette for mental wellness */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 20%;
 
-    --card: 40 40% 96%;
-    --card-foreground: 25 40% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 20%;
 
-    --popover: 40 40% 96%;
-    --popover-foreground: 25 40% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 20%;
 
-    /* Brown primary for warmth */
-    --primary: 30 45% 40%;
-    --primary-foreground: 40 40% 96%;
+    /* Blue primary */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Cream secondary */
-    --secondary: 38 35% 90%;
-    --secondary-foreground: 25 40% 25%;
+    /* Light blue secondary */
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 25%;
 
-    --muted: 35 25% 88%;
-    --muted-foreground: 25 20% 45%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    /* Warm accent */
-    --accent: 25 50% 50%;
-    --accent-foreground: 40 40% 96%;
+    /* Purple accent for AI */
+    --accent: 262 52% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Critical alerts - warm red */
-    --destructive: 0 70% 50%;
+    /* Critical alerts */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 20% 80%;
-    --input: 35 25% 88%;
-    --ring: 30 45% 40%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
 
     --radius: 1rem;
 
     /* Custom tokens */
-    --chat-user: 38 35% 92%;
-    --chat-assistant: 30 35% 75%;
-    --mood-card: 40 40% 98%;
-    --mood-card-selected: 35 30% 88%;
-    --timer-ring: 35 40% 85%;
-    --alert-critical: 0 80% 95%;
-    --alert-critical-border: 0 70% 50%;
+    --chat-user: 221 83% 53%;
+    --chat-assistant: 210 40% 96%;
+    --mood-card: 0 0% 100%;
+    --mood-card-selected: 221 83% 95%;
+    --timer-ring: 214 32% 91%;
+    --alert-critical: 0 84% 97%;
+    --alert-critical-border: 0 84% 60%;
 
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(30 30% 50% / 0.15);
-    --shadow-card: 0 2px 12px -2px hsl(30 30% 50% / 0.1);
-    --shadow-hover: 0 8px 30px -8px hsl(30 30% 50% / 0.2);
+    /* Shadows - blue tinted */
+    --shadow-soft: 0 4px 20px -4px hsl(221 83% 53% / 0.12);
+    --shadow-card: 0 2px 12px -2px hsl(221 83% 53% / 0.08);
+    --shadow-hover: 0 8px 30px -8px hsl(221 83% 53% / 0.18);
 
-    /* Sidebar (if needed) */
-    --sidebar-background: 38 35% 90%;
-    --sidebar-foreground: 25 40% 25%;
-    --sidebar-primary: 30 45% 40%;
-    --sidebar-primary-foreground: 40 40% 96%;
-    --sidebar-accent: 35 30% 85%;
-    --sidebar-accent-foreground: 25 40% 25%;
-    --sidebar-border: 35 20% 80%;
-    --sidebar-ring: 30 45% 40%;
+    /* Sidebar */
+    --sidebar-background: 210 40% 98%;
+    --sidebar-foreground: 222 47% 20%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 32% 91%;
+    --sidebar-accent-foreground: 222 47% 25%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 221 83% 53%;
   }
 
   .dark {
-    --background: 25 30% 12%;
-    --foreground: 38 30% 90%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 25 25% 18%;
-    --card-foreground: 38 30% 90%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 25 25% 18%;
-    --popover-foreground: 38 30% 90%;
+    --popover: 222 47% 15%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 35 45% 55%;
-    --primary-foreground: 25 30% 12%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 25 20% 22%;
-    --secondary-foreground: 38 30% 85%;
+    --secondary: 217 33% 22%;
+    --secondary-foreground: 210 40% 90%;
 
-    --muted: 25 20% 25%;
-    --muted-foreground: 35 20% 60%;
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 30 40% 45%;
-    --accent-foreground: 38 30% 95%;
+    --accent: 263 60% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 60% 45%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 25 20% 25%;
-    --input: 25 20% 25%;
-    --ring: 35 45% 55%;
+    --border: 217 33% 22%;
+    --input: 217 33% 22%;
+    --ring: 217 91% 60%;
 
-    --chat-user: 25 20% 25%;
-    --chat-assistant: 30 25% 30%;
-    --mood-card: 25 25% 20%;
-    --mood-card-selected: 30 30% 28%;
-    --timer-ring: 30 25% 35%;
-    --alert-critical: 0 50% 20%;
-    --alert-critical-border: 0 60% 45%;
+    --chat-user: 217 91% 50%;
+    --chat-assistant: 217 33% 22%;
+    --mood-card: 222 47% 18%;
+    --mood-card-selected: 217 60% 25%;
+    --timer-ring: 217 33% 28%;
+    --alert-critical: 0 50% 18%;
+    --alert-critical-border: 0 62% 50%;
 
-    --sidebar-background: 25 25% 15%;
-    --sidebar-foreground: 38 30% 90%;
-    --sidebar-primary: 35 45% 55%;
-    --sidebar-primary-foreground: 25 30% 12%;
-    --sidebar-accent: 25 20% 22%;
-    --sidebar-accent-foreground: 38 30% 85%;
-    --sidebar-border: 25 20% 25%;
-    --sidebar-ring: 35 45% 55%;
+    --sidebar-background: 222 47% 13%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 22%;
+    --sidebar-accent-foreground: 210 40% 90%;
+    --sidebar-border: 217 33% 22%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -142,11 +142,11 @@
   }
 
   .chat-bubble-user {
-    @apply bg-chat-user rounded-2xl rounded-br-md px-4 py-3;
+    @apply bg-chat-user text-white rounded-2xl rounded-br-md px-4 py-3;
   }
 
   .chat-bubble-assistant {
-    @apply bg-chat-assistant rounded-2xl rounded-bl-md px-4 py-3;
+    @apply bg-chat-assistant text-foreground rounded-2xl rounded-bl-md px-4 py-3;
   }
 
   .timer-circle {
