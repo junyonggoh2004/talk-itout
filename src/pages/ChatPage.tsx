@@ -316,7 +316,7 @@ const ChatPage = () => {
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 min-h-0">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 min-h-[50vh] md:min-h-[60vh] lg:min-h-[65vh]">
               {messages.map((message) => (
                 <ChatBubble
                   key={message.id}
