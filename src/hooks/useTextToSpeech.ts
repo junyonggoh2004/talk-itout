@@ -6,6 +6,7 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const useTextToSpeech = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -43,6 +44,7 @@ export const useTextToSpeech = () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
+        setCurrentAudio(null);
       }
 
       // Check if we got a streaming response (audio/mpeg) or JSON
@@ -76,6 +78,7 @@ export const useTextToSpeech = () => {
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
+        setCurrentAudio(audio);
 
         audio.onplay = () => {
           setIsPlaying(true);
@@ -86,6 +89,7 @@ export const useTextToSpeech = () => {
           setIsPlaying(false);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
+          setCurrentAudio(null);
         };
 
         audio.onerror = () => {
@@ -94,6 +98,7 @@ export const useTextToSpeech = () => {
           setIsLoading(false);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
+          setCurrentAudio(null);
         };
 
         await audio.play();
@@ -109,6 +114,7 @@ export const useTextToSpeech = () => {
           const audioUrl = URL.createObjectURL(audioBlob);
           const audio = new Audio(audioUrl);
           audioRef.current = audio;
+          setCurrentAudio(audio);
 
           audio.onplay = () => {
             setIsPlaying(true);
@@ -119,6 +125,7 @@ export const useTextToSpeech = () => {
             setIsPlaying(false);
             URL.revokeObjectURL(audioUrl);
             audioRef.current = null;
+            setCurrentAudio(null);
           };
 
           audio.onerror = () => {
@@ -127,6 +134,7 @@ export const useTextToSpeech = () => {
             setIsLoading(false);
             URL.revokeObjectURL(audioUrl);
             audioRef.current = null;
+            setCurrentAudio(null);
           };
 
           await audio.play();
@@ -152,9 +160,10 @@ export const useTextToSpeech = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
+      setCurrentAudio(null);
       setIsPlaying(false);
     }
   }, []);
 
-  return { speak, stop, isPlaying, isLoading };
+  return { speak, stop, isPlaying, isLoading, currentAudio };
 };
