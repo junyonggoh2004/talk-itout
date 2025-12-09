@@ -272,7 +272,7 @@ const ChatPage = () => {
                     What's your mood like today?
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {quickMoods.map(mood => <button key={mood.label} onClick={() => handleQuickMood(mood.label)} className={cn("flex items-center gap-2 px-4 py-2 rounded-full", "bg-chat-assistant text-primary-foreground", "hover:opacity-90 transition-opacity", "text-sm font-medium")}>
+                    {quickMoods.map(mood => <button key={mood.label} onClick={() => handleQuickMood(mood.label)} className={cn("flex items-center gap-2 px-4 py-2 rounded-full", "bg-card text-foreground border border-border", "hover:bg-secondary transition-colors", "text-sm font-medium")}>
                         <span>{mood.emoji}</span>
                         <span>{mood.label}</span>
                       </button>)}
