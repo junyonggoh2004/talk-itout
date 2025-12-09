@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,31 +9,49 @@ const CalmPage = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<BreathPhase>("inhale");
   const [isActive, setIsActive] = useState(true);
+  const [countdown, setCountdown] = useState(4);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const phaseDurations = {
-    inhale: 4000,
-    hold: 4000,
-    exhale: 4000,
+    inhale: 4,
+    hold: 4,
+    exhale: 4,
   };
 
   const phaseLabels = {
-    inhale: "Breathe In...",
-    hold: "Hold...",
-    exhale: "Breathe Out...",
+    inhale: "Breathe In",
+    hold: "Hold",
+    exhale: "Breathe Out",
   };
 
+  // Handle countdown timer
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
 
-    const timer = setTimeout(() => {
-      setPhase((current) => {
-        if (current === "inhale") return "hold";
-        if (current === "hold") return "exhale";
-        return "inhale";
+    // Reset countdown when phase changes
+    setCountdown(phaseDurations[phase]);
+
+    intervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          // Move to next phase
+          setPhase((currentPhase) => {
+            if (currentPhase === "inhale") return "hold";
+            if (currentPhase === "hold") return "exhale";
+            return "inhale";
+          });
+          return phaseDurations[phase];
+        }
+        return prev - 1;
       });
-    }, phaseDurations[phase]);
+    }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [phase, isActive]);
 
   const getCircleSize = () => {
@@ -70,20 +88,20 @@ const CalmPage = () => {
       <div className="relative flex items-center justify-center mb-16">
         {/* Outer glow */}
         <div
-          className={`absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-blue-300/30 blur-3xl transition-transform ${
-            phase === "inhale" ? "duration-[4000ms]" : phase === "hold" ? "duration-[4000ms]" : "duration-[4000ms]"
-          } ${getCircleSize()}`}
+          className={`absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-blue-300/30 blur-3xl transition-transform duration-1000 ${getCircleSize()}`}
         />
         
         {/* Main breathing circle */}
         <div
-          className={`w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-blue-300 to-blue-400 shadow-2xl shadow-blue-300/50 flex items-center justify-center transition-transform ease-in-out ${
-            phase === "inhale" ? "duration-[4000ms]" : phase === "hold" ? "duration-[4000ms]" : "duration-[4000ms]"
-          } ${getCircleSize()}`}
+          className={`w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-blue-300 to-blue-400 shadow-2xl shadow-blue-300/50 flex flex-col items-center justify-center transition-transform ease-in-out duration-1000 ${getCircleSize()}`}
         >
           {/* Phase label */}
           <span className="text-xl md:text-2xl font-semibold text-blue-800">
             {phaseLabels[phase]}
+          </span>
+          {/* Countdown timer */}
+          <span className="text-4xl md:text-5xl font-bold text-blue-900 mt-2">
+            {countdown}
           </span>
         </div>
       </div>
