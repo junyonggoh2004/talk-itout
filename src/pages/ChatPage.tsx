@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, Send, Mic, MicOff, Trash2, Volume2, VolumeX, Loader2 } from "lucide-react";
+import { MessageCircle, Send, Mic, MicOff, Trash2, Volume2, VolumeX, Loader2, X } from "lucide-react";
 import Header from "@/components/Header";
 import ChatBubble from "@/components/ChatBubble";
 import AvatarContainer from "@/components/AvatarContainer";
@@ -43,6 +43,7 @@ const ChatPage = () => {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [selectedQuickMood, setSelectedQuickMood] = useState<string | null>(null);
+  const [quickMoodDismissed, setQuickMoodDismissed] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
@@ -259,7 +260,14 @@ const ChatPage = () => {
               </div>
 
               {/* Quick mood selector */}
-              {!selectedQuickMood && <div className="mt-4 p-4 bg-secondary/50 rounded-xl animate-fade-in">
+              {!selectedQuickMood && !quickMoodDismissed && <div className="mt-4 p-4 bg-secondary/50 rounded-xl animate-fade-in relative">
+                  <button 
+                    onClick={() => setQuickMoodDismissed(true)} 
+                    className="absolute top-2 right-2 p-1 rounded-full hover:bg-secondary/80 transition-colors text-muted-foreground hover:text-foreground"
+                    aria-label="Dismiss"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                   <p className="text-sm font-medium text-foreground mb-3">
                     What's your mood like today?
                   </p>
