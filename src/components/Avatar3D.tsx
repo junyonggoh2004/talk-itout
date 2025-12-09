@@ -76,34 +76,25 @@ const AvatarModel = ({ emotion, audioVolume, isSpeaking, currentViseme }: Avatar
         }
       });
       
-      // Apply lip sync when speaking
-      if (isSpeaking && audioVolume > 0.01) {
-        // Apply current viseme
+      // Apply lip sync when speaking - reduced sensitivity for natural movement
+      if (isSpeaking && audioVolume > 0.05) {
+        // Apply current viseme with reduced intensity
         if (dict[currentViseme] !== undefined) {
-          const visemeIntensity = Math.min(audioVolume * 1.8, 1);
+          const visemeIntensity = Math.min(audioVolume * 0.6, 0.5); // Max 50% intensity
           influences[dict[currentViseme]] = THREE.MathUtils.lerp(
             influences[dict[currentViseme]],
             visemeIntensity,
-            lerpSpeed * 1.5
+            lerpSpeed
           );
         }
         
-        // Also drive jaw open for more visible mouth movement
+        // Subtle jaw movement
         if (dict['jawOpen'] !== undefined) {
-          const jawIntensity = audioVolume * 0.6;
+          const jawIntensity = Math.min(audioVolume * 0.25, 0.3); // Max 30% jaw open
           influences[dict['jawOpen']] = THREE.MathUtils.lerp(
             influences[dict['jawOpen']],
             jawIntensity,
-            lerpSpeed * 1.5
-          );
-        }
-        
-        // Add some mouth movement
-        if (dict['mouthOpen'] !== undefined) {
-          influences[dict['mouthOpen']] = THREE.MathUtils.lerp(
-            influences[dict['mouthOpen']],
-            audioVolume * 0.5,
-            lerpSpeed * 1.5
+            lerpSpeed
           );
         }
       }
