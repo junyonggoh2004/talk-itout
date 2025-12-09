@@ -38,6 +38,16 @@ const initialMessages: Message[] = [{
   sender: "assistant",
   timestamp: "Just now"
 }];
+// Map emotions to Lumi's feeling phrases based on student's emotion
+const emotionToFeelingPhrase: Record<string, string> = {
+  happy: "at ease",
+  sad: "empathetic",
+  concerned: "concerned",
+  surprised: "curious",
+  thinking: "thoughtful",
+  neutral: "attentive",
+};
+
 const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
@@ -48,6 +58,7 @@ const ChatPage = () => {
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [lastAssistantMessage, setLastAssistantMessage] = useState(initialMessages[0].text);
+  const [lastUserMessage, setLastUserMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const {
     speak,
@@ -63,8 +74,10 @@ const ChatPage = () => {
     isSpeaking: isAudioSpeaking
   } = useAudioAnalyzer(currentAudio, isPlaying);
 
-  // Emotion detection from last assistant message
-  const emotion = useEmotionDetection(lastAssistantMessage);
+  // Emotion detection from last user message (to show Lumi's empathetic response)
+  const studentEmotion = useEmotionDetection(lastUserMessage);
+  const lumiFeeling = emotionToFeelingPhrase[studentEmotion] || "attentive";
+  
   const handleVoiceTranscript = useCallback((text: string) => {
     setInput(prev => prev ? `${prev} ${text}` : text);
     toast.success("Voice captured!");
@@ -172,6 +185,7 @@ const ChatPage = () => {
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
+    setLastUserMessage(messageText);
     setSuggestedReplies([]);
     getAIResponse(newMessages);
   };
@@ -219,11 +233,11 @@ const ChatPage = () => {
           {/* Avatar section - hidden on mobile/tablet, positioned lower */}
           <div className="hidden lg:flex lg:flex-col lg:justify-end lg:w-72 shrink-0 pb-24">
             <div className="card-elevated p-3">
-              <AvatarContainer emotion={emotion} audioVolume={audioVolume} isSpeaking={isPlaying || isAudioSpeaking} currentText={lastAssistantMessage} />
+              <AvatarContainer emotion={studentEmotion} audioVolume={audioVolume} isSpeaking={isPlaying || isAudioSpeaking} currentText={lastAssistantMessage} />
               <div className="mt-2 text-center">
                 <p className="text-sm font-medium text-foreground">Lumi</p>
                 <p className="text-xs text-muted-foreground">
-                  {isPlaying ? "Speaking..." : emotion !== 'neutral' ? `Feeling ${emotion}` : "Listening"}
+                  {isPlaying ? "Speaking..." : lastUserMessage ? `Feeling ${lumiFeeling}` : "Listening"}
                 </p>
               </div>
             </div>
