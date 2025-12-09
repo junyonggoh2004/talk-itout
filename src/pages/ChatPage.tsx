@@ -215,9 +215,9 @@ const ChatPage = () => {
       <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 flex flex-col lg:min-h-0">
         {/* Main content grid */}
         <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:min-h-0">
-          {/* Avatar section - hidden on mobile/tablet */}
-          <div className="hidden lg:block lg:w-72 shrink-0">
-            <div className="card-elevated p-3 h-full">
+          {/* Avatar section - hidden on mobile/tablet, positioned lower */}
+          <div className="hidden lg:flex lg:flex-col lg:justify-end lg:w-72 shrink-0 pb-24">
+            <div className="card-elevated p-3">
               <AvatarContainer emotion={emotion} audioVolume={audioVolume} isSpeaking={isPlaying || isAudioSpeaking} currentText={lastAssistantMessage} />
               <div className="mt-2 text-center">
                 <p className="text-sm font-medium text-foreground">Lumi</p>
