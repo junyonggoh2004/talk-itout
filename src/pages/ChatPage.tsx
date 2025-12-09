@@ -217,22 +217,22 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen lg:h-screen bg-background flex flex-col lg:overflow-hidden">
       <Header />
       
-      <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 md:py-6 flex flex-col">
+      <main className="flex-1 container max-w-6xl mx-auto px-4 py-4 flex flex-col lg:min-h-0">
         {/* Main content grid */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-4">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:min-h-0">
           {/* Avatar section - hidden on mobile/tablet */}
-          <div className="hidden lg:block lg:w-80 shrink-0">
-            <div className="card-elevated p-4 h-full">
+          <div className="hidden lg:block lg:w-72 shrink-0">
+            <div className="card-elevated p-3 h-full">
               <AvatarContainer
                 emotion={emotion}
                 audioVolume={audioVolume}
                 isSpeaking={isPlaying || isAudioSpeaking}
                 currentText={lastAssistantMessage}
               />
-              <div className="mt-3 text-center">
+              <div className="mt-2 text-center">
                 <p className="text-sm font-medium text-foreground">MyCounsellor</p>
                 <p className="text-xs text-muted-foreground">
                   {isPlaying ? "Speaking..." : emotion !== 'neutral' ? `Feeling ${emotion}` : "Listening"}
@@ -242,9 +242,9 @@ const ChatPage = () => {
           </div>
 
           {/* Chat container */}
-          <div className="flex-1 card-elevated flex flex-col">
+          <div className="flex-1 card-elevated flex flex-col lg:overflow-hidden lg:min-h-0">
             {/* Chat header */}
-            <div className="p-4 md:p-6 border-b border-border/50 shrink-0">
+            <div className="p-4 border-b border-border/50 shrink-0">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
@@ -316,7 +316,7 @@ const ChatPage = () => {
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 p-4 md:p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="flex-1 p-4 space-y-4 max-h-[60vh] lg:max-h-none overflow-y-auto lg:min-h-0">
               {messages.map((message) => (
                 <ChatBubble
                   key={message.id}
