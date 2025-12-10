@@ -377,7 +377,7 @@ const ChatPage = () => {
 
         {/* Disclaimer */}
         <p className="text-center text-xs text-muted-foreground mt-4 max-w-md mx-auto shrink-0">
-          This AI is not a substitute for professional help. If you're struggling, please reach out to a trusted adult or counselor.
+          This is not a crisis service. If you're in immediate danger, please approach a trusted adult or contact emergency services.
         </p>
       </main>
     </div>;
