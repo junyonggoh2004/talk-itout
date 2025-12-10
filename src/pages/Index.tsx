@@ -62,19 +62,9 @@ const Index = () => {
         {/* Footer */}
         <footer className="container max-w-5xl mx-auto px-4 py-8 border-t border-border/50">
           <div className="text-center text-sm text-muted-foreground">
-            <p className="mb-2">
-              <strong>Important:</strong> This is not a crisis service. If you're in immediate danger, please contact emergency services.
+            <p className="mb-2">This is not a crisis service. If you're in immediate danger, please approach a trusted adult or contact emergency services.<strong>Important:</strong> This is not a crisis service. If you're in immediate danger, please contact emergency services.
             </p>
-            <p>
-              Singapore helplines:{" "}
-              <a href="tel:1800-221-4444" className="text-primary underline">
-                Samaritans of Singapore (1800-221-4444)
-              </a>
-              {" • "}
-              <a href="tel:1800-6123-123" className="text-primary underline">
-                Institute of Mental Health (1800-6123-123)
-              </a>
-            </p>
+            
           </div>
         </footer>
       </main>
