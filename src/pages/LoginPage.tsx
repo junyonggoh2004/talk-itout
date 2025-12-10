@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Mail, Lock, ArrowRight, User } from "lucide-react";
+import { Mail, Lock, ArrowRight, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.png";
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -91,9 +92,7 @@ const LoginPage = () => {
       {/* Simple header */}
       <header className="p-4">
         <Link to="/" className="inline-flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-card rounded-lg flex items-center justify-center shadow-sm">
-            <Heart className="w-6 h-6 text-destructive fill-destructive" />
-          </div>
+          <img src={logo} alt="Talk.ItOut Logo" className="w-10 h-10 object-contain" />
           <div>
             <h1 className="font-display font-bold text-lg leading-tight text-foreground">
               Talk.ItOut
