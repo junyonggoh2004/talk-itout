@@ -73,7 +73,7 @@ const CalmPage = () => {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/chat")}
         className="absolute top-6 left-6 text-blue-600 hover:bg-blue-200/50"
       >
         <ArrowLeft className="h-6 w-6" />
