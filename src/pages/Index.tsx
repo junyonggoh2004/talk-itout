@@ -62,7 +62,7 @@ const Index = () => {
         {/* Footer */}
         <footer className="container max-w-5xl mx-auto px-4 py-8 border-t border-border/50">
           <div className="text-center text-sm text-muted-foreground">
-            <p className="mb-2">This is not a crisis service. If you're in immediate danger, please approach a trusted adult or contact emergency services.<strong>Important:</strong> This is not a crisis service. If you're in immediate danger, please contact emergency services.
+            <p className="mb-2">This is not a crisis service. If you're in immediate danger, please approach a trusted adult or contact emergency services.<strong>Important:</strong> ​
             </p>
             
           </div>
