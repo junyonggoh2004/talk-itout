@@ -53,3 +53,49 @@ Follow these steps to get Talk It Out running locally.
 ## ⚙️ Environment Setup
 
 Create a `.env` file in the project root (or service folders) with the required keys:
+DATABASE_URL= 
+JWT_SECRET= 
+PORT=3000 
+AI_API_KEY= # if applicable
+
+---
+
+## 💻 Technologies Used
+
+This project is built with a modern and robust stack:
+
+* **Vite**
+* **TypeScript**
+* **React**
+* **shadcn-ui**
+* **Tailwind CSS**
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these guidelines:
+
+* Use feature branches: `feature/short-desc`
+* Open a Pull Request (PR) with a clear summary and tests for new behavior.
+* Keep changes focused and follow the existing code style.
+
+---
+
+## ⚠️ Troubleshooting
+
+* Check service logs for detailed errors.
+* Verify all values in your `.env` file and confirm DB migrations are up to date.
+* If using Docker: Use `docker compose up --build` to ensure a clean build.
+
+---
+
+## 📞 Contact
+
+For questions or support, please reach out via:
+
+* **GitHub:** https://github.com/junyonggoh2004
+
+## 📜 License
+
+This project is licensed under the MIT License — see the `LICENSE` file for details.
