@@ -46,11 +46,12 @@ const emotionToFeelingPhrase: Record<string, string> = {
   concerned: "concerned",
   surprised: "curious",
   thinking: "thoughtful",
-  neutral: "attentive",
+  neutral: "attentive"
 };
-
 const ChatPage = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -79,7 +80,6 @@ const ChatPage = () => {
   // Emotion detection from last user message (to show Lumi's empathetic response)
   const studentEmotion = useEmotionDetection(lastUserMessage);
   const lumiFeeling = emotionToFeelingPhrase[studentEmotion] || "attentive";
-  
   const handleVoiceTranscript = useCallback((text: string) => {
     setInput(prev => prev ? `${prev} ${text}` : text);
     toast.success("Voice captured!");
@@ -132,11 +132,15 @@ const ChatPage = () => {
     }
   };
   // Create risk flag for logged-in users
-  const createRiskFlag = async (messageText: string, riskDetection: { severity: string; riskType: string }) => {
+  const createRiskFlag = async (messageText: string, riskDetection: {
+    severity: string;
+    riskType: string;
+  }) => {
     if (!user) return;
-    
     try {
-      const { error } = await supabase.from("risk_flags").insert({
+      const {
+        error
+      } = await supabase.from("risk_flags").insert({
         user_id: user.id,
         severity: riskDetection.severity,
         risk_type: riskDetection.riskType,
@@ -144,7 +148,6 @@ const ChatPage = () => {
         message: messageText,
         status: "open"
       });
-      
       if (error) {
         console.error("Failed to create risk flag:", error);
       } else {
@@ -154,7 +157,6 @@ const ChatPage = () => {
       console.error("Error creating risk flag:", err);
     }
   };
-
   const getAIResponse = async (allMessages: Message[], userMessageText?: string) => {
     setIsTyping(true);
     setSuggestedReplies([]);
@@ -177,12 +179,11 @@ const ChatPage = () => {
         setIsTyping(false);
         return;
       }
-      
+
       // Handle risk detection for logged-in users
       if (data?.riskDetection && user && userMessageText) {
         createRiskFlag(userMessageText, data.riskDetection);
       }
-      
       const responseText = data?.message || "I'm here to listen. Could you tell me more?";
       const newMessages = [...allMessages, {
         id: Date.now().toString(),
@@ -286,9 +287,7 @@ const ChatPage = () => {
                   
                   <div className="flex items-center gap-2">
                     <MessageCircle className="w-5 h-5 text-primary" />
-                    <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
-                      Let's Talk
-                    </h1>
+                    <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Chat with Lumi</h1>
                   </div>
                   
                 </div>
