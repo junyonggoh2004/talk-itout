@@ -7,15 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { signIn, signUp, user, userRole, isLoading: authLoading } = useAuth();
+  const {
+    toast
+  } = useToast();
+  const {
+    signIn,
+    signUp,
+    user,
+    userRole,
+    isLoading: authLoading
+  } = useAuth();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -27,64 +34,60 @@ const LoginPage = () => {
       }
     }
   }, [user, userRole, authLoading, navigate]);
-
   const handleSubmit = async (e: React.FormEvent, mode: "login" | "signup") => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       if (mode === "login") {
-        const { error } = await signIn(email, password);
+        const {
+          error
+        } = await signIn(email, password);
         if (error) {
           toast({
             title: "Login failed",
             description: error.message,
-            variant: "destructive",
+            variant: "destructive"
           });
           setIsLoading(false);
           return;
         }
         toast({
           title: "Welcome back!",
-          description: "You're now logged in.",
+          description: "You're now logged in."
         });
       } else {
-        const { error } = await signUp(email, password, displayName);
+        const {
+          error
+        } = await signUp(email, password, displayName);
         if (error) {
           toast({
             title: "Sign up failed",
             description: error.message,
-            variant: "destructive",
+            variant: "destructive"
           });
           setIsLoading(false);
           return;
         }
         toast({
           title: "Account created!",
-          description: "Your account has been created successfully.",
+          description: "Your account has been created successfully."
         });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
-
     setIsLoading(false);
   };
-
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+    return <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
+  return <div className="min-h-screen bg-background flex flex-col">
       {/* Simple header */}
       <header className="p-4">
         <Link to="/" className="inline-flex items-center gap-2 group">
@@ -95,7 +98,7 @@ const LoginPage = () => {
             <h1 className="font-display font-bold text-lg leading-tight text-foreground">
               Talk.ItOut
             </h1>
-            <p className="text-muted-foreground text-xs">One Talk Away</p>
+            
           </div>
         </Link>
       </header>
@@ -106,9 +109,7 @@ const LoginPage = () => {
             <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-2">
               Welcome to Talk.ItOut
             </h2>
-            <p className="text-muted-foreground">
-              Sign in to save your check-ins and chat history
-            </p>
+            
           </div>
 
           <div className="card-elevated p-6 md:p-8">
@@ -119,20 +120,12 @@ const LoginPage = () => {
               </TabsList>
 
               <TabsContent value="login">
-                <form onSubmit={(e) => handleSubmit(e, "login")} className="space-y-4">
+                <form onSubmit={e => handleSubmit(e, "login")} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
+                      <Input id="login-email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} className="pl-10" required />
                     </div>
                   </div>
 
@@ -140,15 +133,7 @@ const LoginPage = () => {
                     <Label htmlFor="login-password">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
+                      <Input id="login-password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} className="pl-10" required />
                     </div>
                   </div>
 
@@ -160,21 +145,12 @@ const LoginPage = () => {
               </TabsContent>
 
               <TabsContent value="signup">
-                <form onSubmit={(e) => handleSubmit(e, "signup")} className="space-y-4">
+                <form onSubmit={e => handleSubmit(e, "signup")} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Name</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="signup-name"
-                        type="text"
-                        placeholder="Your name or username"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        className="pl-10"
-                        required
-                        maxLength={50}
-                      />
+                      <Input id="signup-name" type="text" placeholder="Your name or username" value={displayName} onChange={e => setDisplayName(e.target.value)} className="pl-10" required maxLength={50} />
                     </div>
                   </div>
 
@@ -182,15 +158,7 @@ const LoginPage = () => {
                     <Label htmlFor="signup-email">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
+                      <Input id="signup-email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} className="pl-10" required />
                     </div>
                   </div>
 
@@ -198,16 +166,7 @@ const LoginPage = () => {
                     <Label htmlFor="signup-password">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="At least 8 characters"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
-                        minLength={8}
-                        required
-                      />
+                      <Input id="signup-password" type="password" placeholder="At least 8 characters" value={password} onChange={e => setPassword(e.target.value)} className="pl-10" minLength={8} required />
                     </div>
                   </div>
 
@@ -231,8 +190,6 @@ const LoginPage = () => {
           </p>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default LoginPage;
