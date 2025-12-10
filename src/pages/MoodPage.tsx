@@ -224,8 +224,7 @@ const MoodPage = () => {
 
         {/* Crisis disclaimer */}
         <p className="text-center text-xs text-muted-foreground mt-6 max-w-md mx-auto">
-          This is not a crisis service. If you're in immediate danger, please contact emergency services or a helpline like{" "}
-          .
+          This is not a crisis service. If you're in immediate danger, please approach a trusted adult or contact emergency services.
         </p>
       </main>
     </div>;
