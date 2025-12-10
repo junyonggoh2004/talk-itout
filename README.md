@@ -1,20 +1,32 @@
 # 💬 Talk It Out
 ## An AI-powered support assistant for young learners
 
-Talk It Out is an integrated AI-powered mental health support system designed to assist students and provide actionable insights for professional counsellors.
+Talk It Out is an integrated AI-powered mental health support system designed to assist **Singaporean students and youths** and provide actionable insights for professional counsellors.
+
+---
+
+## 🚀 How It Works
+
+### For Students:
+
+* **💭 Daily Mood Check-ins:** Reflect on emotional wellbeing and track progress.
+* **🤖 Chat with Lumi:** Interact with an empathetic AI counsellor featuring voice responses and an animated avatar.
+* **🧘 Calm Zone:** Access guided breathing exercises for immediate relief.
+
+### For Counsellors:
+
+* **📊 Dashboard:** View real-time student wellness metrics and overall sentiment.
+* **🚨 Automated Risk Alerts:** Receive instant notifications when students show signs of distress.
+* **💬 Direct Intervention:** Capability to privately approach and support at-risk students.
 
 ---
 
 ## ✨ Key Features
 
-* **1. Cognitive Behavioural Therapy (CBT)-Informed Chatbot**
-    Offers students a safe, empathetic companion while simultaneously generating counsellor-ready insights. This allows emotional support and professional intervention to operate in one integrated loop.
-
-* **2. Chat Memory**
-    Remembers context across conversations for truly personalised support, creating a consistent and trustworthy interaction history.
-
-* **3. Real-Time Risk Detection**
-    Instantly alerts counsellors when risk is detected. It tracks trigger words, conversational shifts, and stress trajectories, allowing for early alerts and precise, timely intervention.
+* **Risk Detection:** Automatically flags concerning messages and low mood entries for immediate attention.
+* **Voice Interaction:** Includes text-to-speech responses for accessible, conversational support.
+* **Privacy-First:** Offers anonymous chat functionality; alerts are only generated for logged-in users to protect privacy while ensuring safety.
+* **Culturally Aware:** Specifically designed for Singaporean students with understanding of the local context and pressures.
 
 ---
 
@@ -56,19 +68,15 @@ Create a `.env` file in the project root (or service folders) with the required 
 DATABASE_URL= 
 JWT_SECRET= 
 PORT=3000 
-AI_API_KEY= # if applicable
+AI_API_KEY= # if applicable (e.g., for Gemini, OpenAI)
 
----
-
-## 💻 Technologies Used
+💻 Technologies Used
 
 This project is built with a modern and robust stack:
 
-* **Vite**
-* **TypeScript**
-* **React**
-* **shadcn-ui**
-* **Tailwind CSS**
+* **Frontend:** React, TypeScript, Vite, shadcn-ui, Tailwind CSS
+* **Backend & Data:** Supabase
+* **AI/Services:** Lovable AI (Gemini), ElevenLabs TTS
 
 ---
 
@@ -89,12 +97,6 @@ We welcome contributions! Please follow these guidelines:
 * If using Docker: Use `docker compose up --build` to ensure a clean build.
 
 ---
-
-## 📞 Contact
-
-For questions or support, please reach out via:
-
-* **GitHub:** https://github.com/junyonggoh2004
 
 ## 📜 License
 
