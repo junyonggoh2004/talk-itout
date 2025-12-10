@@ -1,73 +1,55 @@
-# Welcome to your Lovable project
+# 💬 Talk It Out
+## An AI-powered support assistant for young learners
 
-## Project info
+Talk It Out is an integrated AI-powered mental health support system designed to assist students and provide actionable insights for professional counsellors.
 
-**URL**: https://talk-itout.lovable.app/
+---
 
-## How can I edit this code?
+## ✨ Key Features
 
-There are several ways of editing your application.
+* **1. Cognitive Behavioural Therapy (CBT)-Informed Chatbot**
+    Offers students a safe, empathetic companion while simultaneously generating counsellor-ready insights. This allows emotional support and professional intervention to operate in one integrated loop.
 
-**Use Lovable**
+* **2. Chat Memory**
+    Remembers context across conversations for truly personalized support, creating a consistent and trustworthy interaction history.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+* **3. Real-Time Risk Detection**
+    Instantly alerts counsellors when risk is detected. It tracks trigger words, conversational shifts, and stress trajectories, allowing for early alerts and precise, timely intervention.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🛠️ Quick Start
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Follow these steps to get Talk It Out running locally.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1.  **Clone the Repository**
+    ```bash
+    git clone [https://github.com/junyonggoh2004/talk-itout.git](https://github.com/junyonggoh2004/talk-itout.git)
+    cd talk-itout
+    ```
 
-Follow these steps:
+2.  **Install Dependencies** (Adjust per service)
+    * **JavaScript / Node:**
+        ```bash
+        npm install
+        ```
+    * **Python:**
+        ```bash
+        pip install -r requirements.txt
+        ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3.  **Run Locally** (Pick the command matching your service)
+    ```bash
+    npm run dev           # frontend or fullstack (JS)
+    # or
+    python -m uvicorn app.main:app --reload  # FastAPI example
+    ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4.  **Access the Application**
+    Open your web browser and navigate to `http://localhost:3000` (or the port the project uses).
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## ⚙️ Environment Setup
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Create a `.env` file in the project root (or service folders) with the required keys:
