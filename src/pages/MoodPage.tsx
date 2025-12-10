@@ -225,9 +225,7 @@ const MoodPage = () => {
         {/* Crisis disclaimer */}
         <p className="text-center text-xs text-muted-foreground mt-6 max-w-md mx-auto">
           This is not a crisis service. If you're in immediate danger, please contact emergency services or a helpline like{" "}
-          <a href="tel:1800-221-4444" className="text-primary underline">
-            Samaritans of Singapore (1800-221-4444)
-          </a>.
+          .
         </p>
       </main>
     </div>;
