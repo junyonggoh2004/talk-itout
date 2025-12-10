@@ -24,7 +24,7 @@ serve(async (req) => {
     }
 
     // Use provided voice or default custom voice
-    const voiceId = voice || "SDNKIYEpTz0h56jQX8rA";
+    const voiceId = voice || "6qpxBH5KUSDb40bij36w";
 
     console.log(
       `Generating speech for text: "${text.substring(0, 50)}..." with voice: ${voiceId}, streaming: ${stream}`,
