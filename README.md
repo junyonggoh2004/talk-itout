@@ -11,7 +11,7 @@ Talk It Out is an integrated AI-powered mental health support system designed to
     Offers students a safe, empathetic companion while simultaneously generating counsellor-ready insights. This allows emotional support and professional intervention to operate in one integrated loop.
 
 * **2. Chat Memory**
-    Remembers context across conversations for truly personalized support, creating a consistent and trustworthy interaction history.
+    Remembers context across conversations for truly personalised support, creating a consistent and trustworthy interaction history.
 
 * **3. Real-Time Risk Detection**
     Instantly alerts counsellors when risk is detected. It tracks trigger words, conversational shifts, and stress trajectories, allowing for early alerts and precise, timely intervention.
