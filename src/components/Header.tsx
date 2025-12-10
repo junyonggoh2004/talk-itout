@@ -49,30 +49,19 @@ const Header = () => {
             <h1 className="text-primary-foreground font-display font-bold text-lg leading-tight">
               Talk.ItOut
             </h1>
-            <p className="text-primary-foreground/70 text-xs">One Talk Away</p>
+            
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex items-center gap-1 md:gap-2">
           {navItems.map(item => {
-            const isActive = location.pathname === item.to;
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                  isActive
-                    ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                )}
-              >
+          const isActive = location.pathname === item.to;
+          return <Link key={item.to} to={item.to} className={cn("flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all", isActive ? "bg-primary-foreground/20 text-primary-foreground" : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground")}>
                 <item.icon className="w-4 h-4" />
                 <span className="hidden md:inline">{item.label}</span>
-              </Link>
-            );
-          })}
+              </Link>;
+        })}
         </nav>
 
         {/* User info & Auth buttons */}
